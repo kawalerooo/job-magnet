@@ -1,0 +1,8 @@
+body {
+  height: 100vh;
+  background: linear-gradient(to bottom, #FFFFFF, #121212);
+}
+
+.my-element {
+  background: linear-gradient(to bottom, #FFFFFF, #121212);
+}

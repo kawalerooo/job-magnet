@@ -10,6 +10,7 @@ export const JobOffersProvider = ({ children }) => {
         workload: {},
         workMode: {},
     });
+    const [favoriteOffers, setFavoriteOffers] = useState([]);
 
     const addJobOffer = (jobOffer) => {
         const newJobOffer = {
@@ -58,6 +59,16 @@ export const JobOffersProvider = ({ children }) => {
         });
     };
 
+    const toggleFavoriteOffer = (id) => {
+        setFavoriteOffers((prevFavoriteOffers) => {
+            if (prevFavoriteOffers.includes(id)) {
+                return prevFavoriteOffers.filter((offerId) => offerId !== id);
+            } else {
+                return [...prevFavoriteOffers, id];
+            }
+        });
+    };
+
     const contextValue = {
         jobOffers,
         addJobOffer,
@@ -66,6 +77,8 @@ export const JobOffersProvider = ({ children }) => {
         filters,
         updateFilters,
         filterJobOffers,
+        favoriteOffers,
+        toggleFavoriteOffer,
     };
 
     return (

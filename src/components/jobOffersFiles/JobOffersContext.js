@@ -11,6 +11,7 @@ export const JobOffersProvider = ({ children }) => {
         workMode: {},
     });
     const [favoriteOffers, setFavoriteOffers] = useState([]);
+    const [appliedCounts, setAppliedCounts] = useState({});
 
     const addJobOffer = (jobOffer) => {
         const newJobOffer = {
@@ -69,6 +70,13 @@ export const JobOffersProvider = ({ children }) => {
         });
     };
 
+    const handleApply = (id) => {
+        setAppliedCounts((prevCounts) => ({
+            ...prevCounts,
+            [id]: (prevCounts[id] || 0) + 1,
+        }));
+    };
+
     const contextValue = {
         jobOffers,
         addJobOffer,
@@ -79,6 +87,8 @@ export const JobOffersProvider = ({ children }) => {
         filterJobOffers,
         favoriteOffers,
         toggleFavoriteOffer,
+        appliedCounts,
+        handleApply,
     };
 
     return (

@@ -19,7 +19,7 @@ import {
 } from '@mui/material';
 
 const JobOffersList = () => {
-    const { jobOffers, deleteJobOffer, filterJobOffers, favoriteOffers, toggleFavoriteOffer } = useContext(JobOffersContext);
+    const { jobOffers, deleteJobOffer, filterJobOffers, favoriteOffers, toggleFavoriteOffer, handleApply, appliedCounts } = useContext(JobOffersContext);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPositionLevel, setSelectedPositionLevel] = useState('');
     const [selectedContractType, setSelectedContractType] = useState('');
@@ -240,6 +240,9 @@ const JobOffersList = () => {
                                         Tryb pracy
                                     </TableCell>
                                     <TableCell component="th" style={{ fontWeight: 'bold' }}>
+                                        Ilość zgłoszeń
+                                    </TableCell>
+                                    <TableCell component="th" style={{ fontWeight: 'bold' }}>
                                         Akcje
                                     </TableCell>
                                 </TableRow>
@@ -284,6 +287,7 @@ const JobOffersList = () => {
                                                 .filter((key) => offer.workMode[key])
                                                 .join(', ')}
                                         </TableCell>
+                                        <TableCell>{appliedCounts[offer.id] || 0} zgłoszeń</TableCell>
                                         <TableCell>
                                             <Box display="flex" gap={1}>
                                                 <Button
@@ -294,6 +298,7 @@ const JobOffersList = () => {
                                                     style={{
                                                         backgroundColor: '#1976d2',
                                                     }}
+                                                    onClick={() => handleApply(offer.id)}
                                                 >
                                                     Aplikuj
                                                 </Button>
@@ -334,7 +339,6 @@ const JobOffersList = () => {
                                                         <span role="img" aria-label="not-favorite">⭐</span>
                                                     )}
                                                 </Button>
-
                                             </Box>
                                         </TableCell>
                                     </TableRow>

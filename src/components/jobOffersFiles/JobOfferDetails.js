@@ -19,17 +19,13 @@ const StyledButton = styled(Button)({
 
 const JobOfferDetails = () => {
     const { id } = useParams();
-    const { jobOffers } = useContext(JobOffersContext);
+    const { jobOffers, handleApply } = useContext(JobOffersContext);
     const jobOffer = jobOffers.find((offer) => offer.id === id);
     const navigate = useNavigate();
 
     if (!jobOffer) {
         return <Typography>Loading...</Typography>;
     }
-
-    const handleApply = () => {
-        navigate(`/applyForm/${id}`);
-    };
 
     const formattedDate = new Date(jobOffer.date).toLocaleDateString();
 
@@ -52,6 +48,11 @@ const JobOfferDetails = () => {
         .filter(([key, value]) => value)
         .map(([key, value]) => key)
         .join(', ');
+
+    const handleApplyClick = () => {
+        handleApply(id);
+        navigate(`/applyForm/${id}`);
+    };
 
     return (
         <Box
@@ -96,7 +97,7 @@ const JobOfferDetails = () => {
                     <strong>Benefity:</strong>
                 </Typography>
                 <div dangerouslySetInnerHTML={{ __html: jobOffer.benefits }} />
-                <StyledButton variant="contained" color="primary" onClick={handleApply}>
+                <StyledButton variant="contained" color="primary" onClick={handleApplyClick}>
                     Aplikuj
                 </StyledButton>
             </Paper>

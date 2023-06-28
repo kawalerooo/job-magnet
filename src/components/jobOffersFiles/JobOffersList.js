@@ -245,100 +245,108 @@ const JobOffersList = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {filterAndSearchJobOffers().map((offer) => (
-                                    <TableRow key={offer.id}>
-                                        <TableCell>
-                                            <Button
-                                                component={Link}
-                                                to={{
-                                                    pathname: `/jobOffers/${offer.id}`,
-                                                    state: { offerName: offer.title },
-                                                }}
-                                                color="secondary"
-                                                variant="contained"
-                                                style={{
-                                                    backgroundColor: '#1976d2',
-                                                }}
-                                            >
-                                                {offer.title}
-                                            </Button>
-                                        </TableCell>
-                                        <TableCell>{offer.date.toLocaleDateString()}</TableCell>
-                                        <TableCell>
-                                            {Object.keys(offer.positionLevel || {})
-                                                .filter((key) => offer.positionLevel[key])
-                                                .join(', ')}
-                                        </TableCell>
-                                        <TableCell>
-                                            {Object.keys(offer.contractType || {})
-                                                .filter((key) => offer.contractType[key])
-                                                .join(', ')}
-                                        </TableCell>
-                                        <TableCell>
-                                            {Object.keys(offer.workload || {})
-                                                .filter((key) => offer.workload[key])
-                                                .join(', ')}
-                                        </TableCell>
-                                        <TableCell>
-                                            {Object.keys(offer.workMode || {})
-                                                .filter((key) => offer.workMode[key])
-                                                .join(', ')}
-                                        </TableCell>
-                                        <TableCell>
-                                            <Box display="flex" gap={1}>
-                                                <Button
-                                                    component={Link}
-                                                    to={`/applyForm/${offer.id}`}
-                                                    color="secondary"
-                                                    variant="contained"
-                                                    style={{
-                                                        backgroundColor: '#1976d2',
-                                                    }}
-                                                >
-                                                    Aplikuj
-                                                </Button>
-                                                <Button
-                                                    component={Link}
-                                                    to={`/editJobOffer/${offer.id}`}
-                                                    color="secondary"
-                                                    variant="contained"
-                                                    style={{
-                                                        backgroundColor: '#1976d2',
-                                                    }}
-                                                >
-                                                    Edytuj
-                                                </Button>
-                                                <Button
-                                                    onClick={() => handleDelete(offer.id)}
-                                                    color="secondary"
-                                                    variant="contained"
-                                                    style={{
-                                                        backgroundColor: 'red',
-                                                        color: 'white',
-                                                    }}
-                                                >
-                                                    Usuń
-                                                </Button>
-                                                <Button
-                                                    onClick={() => handleToggleFavorite(offer.id)}
-                                                    color="secondary"
-                                                    variant="contained"
-                                                    style={{
-                                                        backgroundColor: favoriteOffers.includes(offer.id) ? 'yellow' : 'transparent',
-                                                        color: favoriteOffers.includes(offer.id) ? 'black' : 'white',
-                                                    }}
-                                                >
-                                                    {favoriteOffers.includes(offer.id) ? (
-                                                        <span role="img" aria-label="favorite">⭐</span>
-                                                    ) : (
-                                                        <span role="img" aria-label="not-favorite">⭐</span>
-                                                    )}
-                                                </Button>
-
-                                            </Box>
+                                {filterAndSearchJobOffers().length === 0 ? (
+                                    <TableRow>
+                                        <TableCell colSpan={7} align="center">
+                                            Obecnie nie przeprowadzamy rekrutacji
                                         </TableCell>
                                     </TableRow>
-                                ))}
+                                ) : (
+                                    filterAndSearchJobOffers().map((offer) => (
+                                        <TableRow key={offer.id}>
+                                            <TableCell>
+                                                <Button
+                                                    component={Link}
+                                                    to={{
+                                                        pathname: `/jobOffers/${offer.id}`,
+                                                        state: { offerName: offer.title },
+                                                    }}
+                                                    color="secondary"
+                                                    variant="contained"
+                                                    style={{
+                                                        backgroundColor: '#1976d2',
+                                                    }}
+                                                >
+                                                    {offer.title}
+                                                </Button>
+                                            </TableCell>
+                                            <TableCell>{offer.date.toLocaleDateString()}</TableCell>
+                                            <TableCell>
+                                                {Object.keys(offer.positionLevel || {})
+                                                    .filter((key) => offer.positionLevel[key])
+                                                    .join(', ')}
+                                            </TableCell>
+                                            <TableCell>
+                                                {Object.keys(offer.contractType || {})
+                                                    .filter((key) => offer.contractType[key])
+                                                    .join(', ')}
+                                            </TableCell>
+                                            <TableCell>
+                                                {Object.keys(offer.workload || {})
+                                                    .filter((key) => offer.workload[key])
+                                                    .join(', ')}
+                                            </TableCell>
+                                            <TableCell>
+                                                {Object.keys(offer.workMode || {})
+                                                    .filter((key) => offer.workMode[key])
+                                                    .join(', ')}
+                                            </TableCell>
+                                            <TableCell>
+                                                <Box display="flex" gap={1}>
+                                                    <Button
+                                                        component={Link}
+                                                        to={`/applyForm/${offer.id}`}
+                                                        color="secondary"
+                                                        variant="contained"
+                                                        style={{
+                                                            backgroundColor: '#1976d2',
+                                                        }}
+                                                    >
+                                                        Aplikuj
+                                                    </Button>
+                                                    <Button
+                                                        component={Link}
+                                                        to={`/editJobOffer/${offer.id}`}
+                                                        color="secondary"
+                                                        variant="contained"
+                                                        style={{
+                                                            backgroundColor: '#1976d2',
+                                                        }}
+                                                    >
+                                                        Edytuj
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleDelete(offer.id)}
+                                                        color="secondary"
+                                                        variant="contained"
+                                                        style={{
+                                                            backgroundColor: 'red',
+                                                            color: 'white',
+                                                        }}
+                                                    >
+                                                        Usuń
+                                                    </Button>
+                                                    <Button
+                                                        onClick={() => handleToggleFavorite(offer.id)}
+                                                        color="secondary"
+                                                        variant="contained"
+                                                        style={{
+                                                            backgroundColor: favoriteOffers.includes(offer.id) ? 'yellow' : 'transparent',
+                                                            color: favoriteOffers.includes(offer.id) ? 'black' : 'white',
+                                                        }}
+                                                    >
+                                                        {favoriteOffers.includes(offer.id) ? (
+                                                            <span role="img" aria-label="favorite">⭐</span>
+                                                        ) : (
+                                                            <span role="img" aria-label="not-favorite">⭐</span>
+                                                        )}
+                                                    </Button>
+
+                                                </Box>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))
+                                )}
                             </TableBody>
                         </Table>
                     </TableContainer>

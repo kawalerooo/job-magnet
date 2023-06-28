@@ -7,6 +7,7 @@ export const QueueProvider = ({ children }) => {
     const [ticketQueue, setTicketQueue] = useState([]);
     const [currentTicket, setCurrentTicket] = useState(null);
     const [ticketOrder, setTicketOrder] = useState([]);
+    const [completedMeetings, setCompletedMeetings] = useState([]);
 
     const addTicketToQueue = (newTicket) => {
         setTicketQueue((prevQueue) => [...prevQueue, newTicket]);
@@ -27,6 +28,15 @@ export const QueueProvider = ({ children }) => {
     };
 
     const endMeeting = () => {
+        // Zapisz zakończone spotkanie do tabeli spotkań zakończonych
+        if (currentTicket) {
+            const completedMeeting = {
+                id: currentTicket.id,
+                ticketNumber: currentTicket.ticketNumber,
+                priority: currentTicket.priority,
+            };
+            setCompletedMeetings((prevMeetings) => [...prevMeetings, completedMeeting]);
+        }
         setCurrentTicket(null);
     };
 
@@ -64,6 +74,7 @@ export const QueueProvider = ({ children }) => {
                 ticketOrder,
                 updateTicketOrder,
                 updateTicketQueue,
+                completedMeetings, // Dodane completedMeetings do wartości kontekstu
             }}
         >
             {children}

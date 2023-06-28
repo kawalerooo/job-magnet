@@ -35,6 +35,7 @@ const QueueManagement = () => {
         updateTicketOrder,
         updateTicketQueue,
         removeTicketFromQueue,
+        completedMeetings,
     } = useContext(QueueContext);
 
     const [openDialog, setOpenDialog] = useState(false);
@@ -85,6 +86,13 @@ const QueueManagement = () => {
 
         const url = `/recruitment/${selectedTicketId}`;
         navigate(url);
+
+        const completedTicket = ticketQueue.find((ticket) => ticket.id === selectedTicketId);
+        if (completedTicket) {
+            //addCompletedMeeting(completedTicket);
+        }
+
+        removeTicketFromQueue(selectedTicketId);
     };
 
     const handleReturnToMeeting = () => {
@@ -161,7 +169,6 @@ const QueueManagement = () => {
                                             <TableCell style={{ fontWeight: 'bold' }}>Numer biletu</TableCell>
                                             <TableCell style={{ fontWeight: 'bold' }}>ID zgłoszenia</TableCell>
                                             <TableCell style={{ fontWeight: 'bold' }}>Priorytet</TableCell>
-                                            <TableCell style={{ fontWeight: 'bold' }}></TableCell>
                                         </TableRow>
                                     </TableHead>
                                     <TableBody>
@@ -178,7 +185,6 @@ const QueueManagement = () => {
                                                             >
                                                                 <TableCell>{index + 1}</TableCell>
                                                                 <TableCell>{ticket.id}</TableCell>
-                                                                <TableCell>{ticket.priority}</TableCell>
                                                                 <TableCell>
                                                                     <Button
                                                                         variant="contained"
@@ -197,7 +203,7 @@ const QueueManagement = () => {
                                         })}
                                         {ticketOrder.length === 0 && (
                                             <TableRow>
-                                                <TableCell colSpan={4} align="center">
+                                                <TableCell colSpan={3} align="center">
                                                     Brak danych
                                                 </TableCell>
                                             </TableRow>
@@ -209,6 +215,46 @@ const QueueManagement = () => {
                         </Droppable>
                     </DragDropContext>
                 </TableContainer>
+
+                <Box
+                    sx={{
+                        width: '100%',
+                        marginTop: '20px',
+                        borderRadius: '8px',
+                        padding: '20px',
+                    }}
+                >
+                    <Typography variant="h6" sx={{ marginBottom: '10px', fontWeight: 'bold', textAlign: 'center' }}>
+                        Spotkania zakończone
+                    </Typography>
+                    <TableContainer>
+                        <Table>
+                            <TableHead>
+                                <TableRow>
+                                    <TableCell style={{ fontWeight: 'bold' }}>Numer</TableCell>
+                                    <TableCell style={{ fontWeight: 'bold' }}>ID zgłoszenia</TableCell>
+                                    <TableCell style={{ fontWeight: 'bold' }}>Priorytet</TableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {completedMeetings.map((meeting, index) => (
+                                    <TableRow key={meeting.id}>
+                                        <TableCell>{index + 1}</TableCell>
+                                        <TableCell>{meeting.id}</TableCell>
+                                        <TableCell>{meeting.priority}</TableCell>
+                                    </TableRow>
+                                ))}
+                                {completedMeetings.length === 0 && (
+                                    <TableRow>
+                                        <TableCell colSpan={3} align="center">
+                                            Brak spotkań zakończonych
+                                        </TableCell>
+                                    </TableRow>
+                                )}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                </Box>
             </Box>
 
             {/* Start Meeting Confirmation Dialog */}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import SalaryCalculator from './components/salaryCalculatorFiles/SalaryCalculator';
 import JobOffers from './components/jobOffersFiles/JobOffers';
 import JobOffersList from './components/jobOffersFiles/JobOffersList';
 import JobOfferDetails from './components/jobOffersFiles/JobOfferDetails';
@@ -35,6 +36,7 @@ const App = () => {
                     <Sidebar />
                     <div style={{ flexGrow: 1 }}>
                       <Routes>
+                        <Route path="/salaryCalculator" element={<SalaryCalculator />} />
                         <Route path="/jobOffers" element={<JobOffers />} />
                         <Route path="/jobOffersList" element={<JobOffersList />} />
                         <Route path="/jobOffers/:id" element={<JobOfferDetails />} />

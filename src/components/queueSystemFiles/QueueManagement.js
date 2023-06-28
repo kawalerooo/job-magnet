@@ -113,121 +113,119 @@ const QueueManagement = () => {
                 justifyContent: 'flex-start',
                 height: '100vh',
                 padding: '20px',
+                backgroundColor: '#f5f5f5',
             }}
         >
-            <Box
-                sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    alignItems: 'center',
-                    maxWidth: '600px',
-                    width: '100%',
-                    backgroundColor: '#f0f0f0',
-                    borderRadius: '8px',
-                    padding: '20px',
-                }}
-            >
-                <Typography variant="h4" sx={{ marginBottom: '20px', fontWeight: 'bold' }}>
-                    Zarządzanie kolejką
-                </Typography>
+            <Card sx={{ width: '100%', marginBottom: '20px' }}>
+                <CardContent>
+                    <Typography variant="h4" sx={{ marginBottom: '20px', fontWeight: 'bold', textAlign: 'center' }}>
+                        Zarządzanie kolejką
+                    </Typography>
 
-                <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-                    <Switch checked={queueEnabled} onChange={handleQueueToggle} color="primary" sx={{ marginRight: '10px' }} />
-                    <Typography variant="body1">Stan kolejki: {queueEnabled ? 'Włączona' : 'Wyłączona'}</Typography>
-                </Box>
+                    <Box sx={{ display: 'flex', alignItems: 'center', marginBottom: '10px', justifyContent: 'center' }}>
+                        <Typography variant="body1" sx={{ marginRight: '10px' }}>
+                            Stan kolejki:
+                        </Typography>
+                        <Switch checked={queueEnabled} onChange={handleQueueToggle} color="primary" />
+                    </Box>
 
-                <Typography variant="body1" sx={{ marginBottom: '10px' }}>
-                    Aktualnie obsługiwany: {currentTicket ? currentTicket.id : 'Brak'}
-                </Typography>
+                    <Typography variant="body1" sx={{ marginBottom: '10px', textAlign: 'center' }}>
+                        Aktualnie obsługiwany: {currentTicket ? currentTicket.id : 'Brak'}
+                    </Typography>
 
-                <Button
-                    variant="contained"
-                    onClick={handleStartMeetingConfirmation}
-                    disabled={!queueEnabled || currentTicket || isQueueEmpty}
-                    sx={{ marginBottom: '10px' }}
-                >
-                    Rozpocznij spotkanie
-                </Button>
+                    <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '10px' }}>
+                        <Button
+                            variant="contained"
+                            onClick={handleStartMeetingConfirmation}
+                            disabled={!queueEnabled || currentTicket || isQueueEmpty}
+                            sx={{ marginRight: '10px' }}
+                        >
+                            Rozpocznij spotkanie
+                        </Button>
 
-                {currentTicket && (
-                    <Button variant="contained" onClick={handleReturnToMeeting} sx={{ marginBottom: '10px' }}>
-                        Powrót do spotkania
-                    </Button>
-                )}
+                        {currentTicket && (
+                            <Button variant="contained" onClick={handleReturnToMeeting} sx={{ marginRight: '10px' }}>
+                                Powrót do spotkania
+                            </Button>
+                        )}
 
-                <Button variant="contained" onClick={endMeeting} disabled={!currentTicket} sx={{ marginBottom: '10px' }}>
-                    Zakończ spotkanie
-                </Button>
+                        <Button variant="contained" onClick={endMeeting} disabled={!currentTicket}>
+                            Zakończ spotkanie
+                        </Button>
+                    </Box>
+                </CardContent>
+            </Card>
 
-                <TableContainer>
-                    <DragDropContext onDragEnd={handleDragEnd}>
-                        <Droppable droppableId="ticketQueue">
-                            {(provided) => (
-                                <Table {...provided.droppableProps} ref={provided.innerRef}>
-                                    <TableHead>
-                                        <TableRow>
-                                            <TableCell style={{ fontWeight: 'bold' }}>Numer biletu</TableCell>
-                                            <TableCell style={{ fontWeight: 'bold' }}>ID zgłoszenia</TableCell>
-                                            <TableCell style={{ fontWeight: 'bold' }}>Priorytet</TableCell>
-                                        </TableRow>
-                                    </TableHead>
-                                    <TableBody>
-                                        {ticketOrder.map((ticketId, index) => {
-                                            const ticket = ticketQueue.find((ticket) => ticket.id === ticketId);
-                                            if (ticket) {
-                                                return (
-                                                    <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
-                                                        {(provided) => (
-                                                            <TableRow
-                                                                {...provided.draggableProps}
-                                                                {...provided.dragHandleProps}
-                                                                ref={provided.innerRef}
-                                                            >
-                                                                <TableCell>{index + 1}</TableCell>
-                                                                <TableCell>{ticket.id}</TableCell>
-                                                                <TableCell>
-                                                                    <Button
-                                                                        variant="contained"
-                                                                        color="error"
-                                                                        onClick={() => handleRemoveTicket(ticket.id)}
-                                                                    >
-                                                                        Usuń
-                                                                    </Button>
-                                                                </TableCell>
-                                                            </TableRow>
-                                                        )}
-                                                    </Draggable>
-                                                );
-                                            }
-                                            return null;
-                                        })}
-                                        {ticketOrder.length === 0 && (
+            <Box sx={{ display: 'flex', marginTop: '20px', width: '100%' }}>
+                <TableContainer component={Card} sx={{ flex: 1, marginRight: '10px' }}>
+                    <CardContent>
+                        <Typography variant="h6" sx={{ marginBottom: '10px', fontWeight: 'bold', textAlign: 'center' }}>
+                            Kolejka
+                        </Typography>
+                        <DragDropContext onDragEnd={handleDragEnd}>
+                            <Droppable droppableId="ticketQueue">
+                                {(provided) => (
+                                    <Table {...provided.droppableProps} ref={provided.innerRef}>
+                                        <TableHead>
                                             <TableRow>
-                                                <TableCell colSpan={3} align="center">
-                                                    Brak danych
-                                                </TableCell>
+                                                <TableCell style={{ fontWeight: 'bold' }}>Numer biletu</TableCell>
+                                                <TableCell style={{ fontWeight: 'bold' }}>ID zgłoszenia</TableCell>
+                                                <TableCell style={{ fontWeight: 'bold' }}>Priorytet</TableCell> {/* Dodana kolumna */}
+                                                <TableCell style={{ fontWeight: 'bold' }}>Akcje</TableCell>
                                             </TableRow>
-                                        )}
-                                        {provided.placeholder}
-                                    </TableBody>
-                                </Table>
-                            )}
-                        </Droppable>
-                    </DragDropContext>
+                                        </TableHead>
+                                        <TableBody>
+                                            {ticketOrder.map((ticketId, index) => {
+                                                const ticket = ticketQueue.find((ticket) => ticket.id === ticketId);
+                                                if (ticket) {
+                                                    return (
+                                                        <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
+                                                            {(provided) => (
+                                                                <TableRow
+                                                                    {...provided.draggableProps}
+                                                                    {...provided.dragHandleProps}
+                                                                    ref={provided.innerRef}
+                                                                >
+                                                                    <TableCell>{index + 1}</TableCell>
+                                                                    <TableCell>{ticket.id}</TableCell>
+                                                                    <TableCell>{ticket.priority}</TableCell> {/* Wyświetlanie priorytetu */}
+                                                                    <TableCell>
+                                                                        <Button
+                                                                            variant="contained"
+                                                                            color="error"
+                                                                            onClick={() => handleRemoveTicket(ticket.id)}
+                                                                        >
+                                                                            Usuń
+                                                                        </Button>
+                                                                    </TableCell>
+                                                                </TableRow>
+                                                            )}
+                                                        </Draggable>
+                                                    );
+                                                }
+                                                return null;
+                                            })}
+                                            {ticketOrder.length === 0 && (
+                                                <TableRow>
+                                                    <TableCell colSpan={4} align="center"> {/* Zmiana wartości colSpan */}
+                                                        Brak danych
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                            {provided.placeholder}
+                                        </TableBody>
+                                    </Table>
+                                )}
+                            </Droppable>
+                        </DragDropContext>
+                    </CardContent>
                 </TableContainer>
 
-                <Box
-                    sx={{
-                        width: '100%',
-                        marginTop: '20px',
-                        borderRadius: '8px',
-                        padding: '20px',
-                    }}
-                >
-                    <Typography variant="h6" sx={{ marginBottom: '10px', fontWeight: 'bold', textAlign: 'center' }}>
-                        Spotkania zakończone
-                    </Typography>
-                    <TableContainer>
+                <TableContainer component={Card} sx={{ flex: 1, marginLeft: '10px' }}>
+                    <CardContent>
+                        <Typography variant="h6" sx={{ marginBottom: '10px', fontWeight: 'bold', textAlign: 'center' }}>
+                            Spotkania zakończone
+                        </Typography>
                         <Table>
                             <TableHead>
                                 <TableRow>
@@ -253,8 +251,8 @@ const QueueManagement = () => {
                                 )}
                             </TableBody>
                         </Table>
-                    </TableContainer>
-                </Box>
+                    </CardContent>
+                </TableContainer>
             </Box>
 
             {/* Start Meeting Confirmation Dialog */}

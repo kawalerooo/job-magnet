@@ -1,5 +1,22 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { Box, Typography, Switch, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
+import {
+    Box,
+    Typography,
+    Switch,
+    Button,
+    TableContainer,
+    Table,
+    TableHead,
+    TableRow,
+    TableCell,
+    TableBody,
+    Card,
+    CardContent,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+} from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { QueueContext } from './QueueContext';
 import { useNavigate } from 'react-router-dom';
@@ -42,7 +59,7 @@ const QueueManagement = () => {
         newTicketOrder.splice(destination.index, 0, removed);
 
         const sortedQueue = newTicketOrder
-            .map((ticketId) => ticketQueue.find((ticket) => ticket.id === ticketId))
+            .map((ticketId) => ticketQueue.find((ticket) => ticket?.id === ticketId))
             .filter((ticket) => ticket && ticket.priority && typeof ticket.priority === 'string');
 
         await updateTicketOrder(newTicketOrder);
@@ -72,7 +89,7 @@ const QueueManagement = () => {
         const url = `/recruitment/${selectedTicketId}`;
         navigate(url);
 
-        const completedTicket = ticketQueue.find((ticket) => ticket.id === selectedTicketId);
+        const completedTicket = ticketQueue.find((ticket) => ticket && ticket.id === selectedTicketId);
         if (completedTicket) {
             //addCompletedMeeting(completedTicket);
         }
@@ -95,7 +112,6 @@ const QueueManagement = () => {
     const totalDuration = completedMeetings.reduce((sum, meeting) => sum + (meeting.endTime - meeting.startTime), 0);
     const averageDuration = completedTickets > 0 ? totalDuration / completedTickets : 0;
 
-    // Pagination calculations
     const ticketQueuePages = Math.ceil(ticketQueue.length / rowsPerPage);
     const completedMeetingsPages = Math.ceil(completedMeetings.length / rowsPerPage);
 

@@ -1,7 +1,6 @@
 import React, { useState, useContext } from 'react';
 import { Link } from 'react-router-dom';
 import { JobOffersContext } from './JobOffersContext';
-
 import {
     Box,
     Typography,
@@ -16,15 +15,19 @@ import {
     MenuItem,
     Card,
     CardContent,
+    Pagination,
 } from '@mui/material';
 
 const JobOffersList = () => {
-    const { jobOffers, deleteJobOffer, filterJobOffers, favoriteOffers, toggleFavoriteOffer, handleApply, appliedCounts } = useContext(JobOffersContext);
+    const { jobOffers, deleteJobOffer, filterJobOffers, favoriteOffers, toggleFavoriteOffer, handleApply, appliedCounts } =
+        useContext(JobOffersContext);
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedPositionLevel, setSelectedPositionLevel] = useState('');
     const [selectedContractType, setSelectedContractType] = useState('');
     const [selectedWorkload, setSelectedWorkload] = useState('');
     const [selectedWorkMode, setSelectedWorkMode] = useState('all');
+    const [page, setPage] = useState(0);
+    const rowsPerPage = 10;
 
     const handleDelete = (id) => {
         deleteJobOffer(id);
@@ -91,6 +94,12 @@ const JobOffersList = () => {
 
         return filteredOffers;
     };
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage - 1);
+    };
+
+    const displayedOffers = filterAndSearchJobOffers().slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
     return (
         <Box display="flex" flexDirection="column" alignItems="center" mt={6}>
@@ -248,14 +257,14 @@ const JobOffersList = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {filterAndSearchJobOffers().length === 0 ? (
+                                {displayedOffers.length === 0 ? (
                                     <TableRow>
                                         <TableCell colSpan={8} style={{ textAlign: 'center' }}>
                                             Obecnie nie przeprowadzamy rekrutacji
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    filterAndSearchJobOffers().map((offer) => (
+                                    displayedOffers.map((offer) => (
                                         <TableRow key={offer.id}>
                                             <TableCell>
                                                 <Button
@@ -336,14 +345,22 @@ const JobOffersList = () => {
                                                         color="secondary"
                                                         variant="contained"
                                                         style={{
-                                                            backgroundColor: favoriteOffers.includes(offer.id) ? 'yellow' : 'transparent',
-                                                            color: favoriteOffers.includes(offer.id) ? 'black' : 'white',
+                                                            backgroundColor: favoriteOffers.includes(offer.id)
+                                                                ? 'yellow'
+                                                                : 'transparent',
+                                                            color: favoriteOffers.includes(offer.id)
+                                                                ? 'black'
+                                                                : 'white',
                                                         }}
                                                     >
                                                         {favoriteOffers.includes(offer.id) ? (
-                                                            <span role="img" aria-label="favorite">⭐</span>
+                                                            <span role="img" aria-label="favorite">
+                                                                ⭐
+                                                            </span>
                                                         ) : (
-                                                            <span role="img" aria-label="not-favorite">⭐</span>
+                                                            <span role="img" aria-label="not-favorite">
+                                                                ⭐
+                                                            </span>
                                                         )}
                                                     </Button>
                                                 </Box>
@@ -354,6 +371,13 @@ const JobOffersList = () => {
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <Box display="flex" justifyContent="center" mt={3}>
+                        <Pagination
+                            count={Math.ceil(filterAndSearchJobOffers().length / rowsPerPage)}
+                            page={page + 1}
+                            onChange={handleChangePage}
+                        />
+                    </Box>
                 </CardContent>
             </Card>
         </Box>

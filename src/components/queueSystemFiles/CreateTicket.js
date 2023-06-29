@@ -15,6 +15,7 @@ import {
     InputLabel,
     Select,
     MenuItem,
+    TablePagination,
 } from '@mui/material';
 import { ApplicationsContext } from '../applicatonFiles/ApplicationsContext';
 import { QueueContext } from './QueueContext';
@@ -24,13 +25,13 @@ const CreateTicket = () => {
     const { addTicketToQueue } = useContext(QueueContext);
     const [selectedApplicationId, setSelectedApplicationId] = useState('');
     const [priority, setPriority] = useState('NORMAL');
+    const [page, setPage] = useState(0);
+    const rowsPerPage = 10;
 
-    const invitedApplications = applications.filter(
-        (application) => application.status === 'Zaproszenie na rozmowę kwalifikacyjną'
-    );
+    const invitedApplications = applications.filter((application) => application.status === 'Zaproszenie na rozmowę kwalifikacyjną');
 
     const generateTicketNumber = () => {
-        //xxx
+        // Generate ticket number logic
     };
 
     const handleApplicationSelect = (event) => {
@@ -43,13 +44,10 @@ const CreateTicket = () => {
 
     const handleCreateTicket = () => {
         if (selectedApplicationId) {
-            const selectedApplication = invitedApplications.find(
-                (application) => application.id === selectedApplicationId
-            );
+            const selectedApplication = invitedApplications.find((application) => application.id === selectedApplicationId);
 
             const isTicketExist = applications.some(
-                (application) =>
-                    application.id === selectedApplicationId && application.status === 'Zakończono'
+                (application) => application.id === selectedApplicationId && application.status === 'Zakończono'
             );
 
             if (!isTicketExist) {
@@ -68,6 +66,12 @@ const CreateTicket = () => {
             }
         }
     };
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const emptyRows = rowsPerPage - Math.min(rowsPerPage, invitedApplications.length - page * rowsPerPage);
 
     return (
         <Box mt={6} display="flex" flexDirection="column" alignItems="center">
@@ -100,26 +104,41 @@ const CreateTicket = () => {
                                         </TableCell>
                                     </TableRow>
                                 ) : (
-                                    invitedApplications.map((application, index) => (
-                                        <TableRow key={application.id}>
-                                            <TableCell>{index + 1}</TableCell>
-                                            <TableCell>{application.jobOffer}</TableCell>
-                                            <TableCell>
-                                                <Button
-                                                    color="primary"
-                                                    onClick={() => setSelectedApplicationId(application.id)}
-                                                >
-                                                    {application.id}
-                                                </Button>
-                                            </TableCell>
-                                            <TableCell>{getApplicationDate(application.id)}</TableCell>
-                                            <TableCell>{application.status}</TableCell>
-                                        </TableRow>
-                                    ))
+                                    invitedApplications
+                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        .map((application, index) => (
+                                            <TableRow key={application.id}>
+                                                <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                                                <TableCell>{application.jobOffer}</TableCell>
+                                                <TableCell>
+                                                    <Button
+                                                        color="primary"
+                                                        onClick={() => setSelectedApplicationId(application.id)}
+                                                    >
+                                                        {application.id}
+                                                    </Button>
+                                                </TableCell>
+                                                <TableCell>{getApplicationDate(application.id)}</TableCell>
+                                                <TableCell>{application.status}</TableCell>
+                                            </TableRow>
+                                        ))
+                                )}
+                                {emptyRows > 0 && (
+                                    <TableRow style={{ height: 53 * emptyRows }}>
+                                        <TableCell colSpan={5} />
+                                    </TableRow>
                                 )}
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <TablePagination
+                        component="div"
+                        rowsPerPageOptions={[]}
+                        count={invitedApplications.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                    />
                     <Box
                         sx={{
                             display: 'flex',

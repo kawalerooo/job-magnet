@@ -1,27 +1,9 @@
 import React, { useContext, useEffect, useState } from 'react';
-import {
-    Box,
-    Typography,
-    Switch,
-    Button,
-    TableContainer,
-    Table,
-    TableHead,
-    TableRow,
-    TableCell,
-    TableBody,
-    Card,
-    CardContent,
-    MenuItem,
-    TextField,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
-} from '@mui/material';
+import { Box, Typography, Switch, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent, Dialog, DialogTitle, DialogContent, DialogActions } from '@mui/material';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 import { QueueContext } from './QueueContext';
 import { useNavigate } from 'react-router-dom';
+import { TablePagination } from '@mui/material';
 
 const QueueManagement = () => {
     const {
@@ -41,6 +23,9 @@ const QueueManagement = () => {
     const [openDialog, setOpenDialog] = useState(false);
     const [confirmStartMeeting, setConfirmStartMeeting] = useState(false);
     const [selectedTicketId, setSelectedTicketId] = useState('');
+    const [ticketQueuePage, setTicketQueuePage] = useState(0);
+    const [completedMeetingsPage, setCompletedMeetingsPage] = useState(0);
+    const rowsPerPage = 10;
 
     const navigate = useNavigate();
 
@@ -60,7 +45,7 @@ const QueueManagement = () => {
             .map((ticketId) => ticketQueue.find((ticket) => ticket.id === ticketId))
             .filter((ticket) => ticket && ticket.priority && typeof ticket.priority === 'string');
 
-        await updateTicketOrder(sortedQueue);
+        await updateTicketOrder(newTicketOrder);
         await updateTicketQueue(sortedQueue);
     };
 
@@ -103,6 +88,32 @@ const QueueManagement = () => {
     const handleRemoveTicket = (ticketId) => {
         removeTicketFromQueue(ticketId);
     };
+
+    // Obliczanie statystyk
+    const totalTickets = ticketOrder.length;
+    const completedTickets = completedMeetings.length;
+    const totalDuration = completedMeetings.reduce((sum, meeting) => sum + (meeting.endTime - meeting.startTime), 0);
+    const averageDuration = completedTickets > 0 ? totalDuration / completedTickets : 0;
+
+    // Pagination calculations
+    const ticketQueuePages = Math.ceil(ticketQueue.length / rowsPerPage);
+    const completedMeetingsPages = Math.ceil(completedMeetings.length / rowsPerPage);
+
+    const handleTicketQueuePageChange = (event, page) => {
+        setTicketQueuePage(page);
+    };
+
+    const handleCompletedMeetingsPageChange = (event, page) => {
+        setCompletedMeetingsPage(page);
+    };
+
+    const ticketQueueStartIndex = ticketQueuePage * rowsPerPage;
+    const ticketQueueEndIndex = (ticketQueuePage + 1) * rowsPerPage;
+    const ticketQueuePageData = ticketQueue.slice(ticketQueueStartIndex, ticketQueueEndIndex);
+
+    const completedMeetingsStartIndex = completedMeetingsPage * rowsPerPage;
+    const completedMeetingsEndIndex = (completedMeetingsPage + 1) * rowsPerPage;
+    const completedMeetingsPageData = completedMeetings.slice(completedMeetingsStartIndex, completedMeetingsEndIndex);
 
     return (
         <Box
@@ -170,44 +181,38 @@ const QueueManagement = () => {
                                             <TableRow>
                                                 <TableCell style={{ fontWeight: 'bold' }}>Numer biletu</TableCell>
                                                 <TableCell style={{ fontWeight: 'bold' }}>ID zgłoszenia</TableCell>
-                                                <TableCell style={{ fontWeight: 'bold' }}>Priorytet</TableCell> {/* Dodana kolumna */}
+                                                <TableCell style={{ fontWeight: 'bold' }}>Priorytet</TableCell>
                                                 <TableCell style={{ fontWeight: 'bold' }}>Akcje</TableCell>
                                             </TableRow>
                                         </TableHead>
                                         <TableBody>
-                                            {ticketOrder.map((ticketId, index) => {
-                                                const ticket = ticketQueue.find((ticket) => ticket.id === ticketId);
-                                                if (ticket) {
-                                                    return (
-                                                        <Draggable key={ticket.id} draggableId={ticket.id} index={index}>
-                                                            {(provided) => (
-                                                                <TableRow
-                                                                    {...provided.draggableProps}
-                                                                    {...provided.dragHandleProps}
-                                                                    ref={provided.innerRef}
+                                            {ticketQueuePageData.map((ticket, index) => (
+                                                <Draggable key={ticket.id} draggableId={ticket.id} index={index + ticketQueueStartIndex}>
+                                                    {(provided) => (
+                                                        <TableRow
+                                                            {...provided.draggableProps}
+                                                            {...provided.dragHandleProps}
+                                                            ref={provided.innerRef}
+                                                        >
+                                                            <TableCell>{index + 1 + ticketQueueStartIndex}</TableCell>
+                                                            <TableCell>{ticket.id}</TableCell>
+                                                            <TableCell>{ticket.priority}</TableCell>
+                                                            <TableCell>
+                                                                <Button
+                                                                    variant="contained"
+                                                                    color="error"
+                                                                    onClick={() => handleRemoveTicket(ticket.id)}
                                                                 >
-                                                                    <TableCell>{index + 1}</TableCell>
-                                                                    <TableCell>{ticket.id}</TableCell>
-                                                                    <TableCell>{ticket.priority}</TableCell> {/* Wyświetlanie priorytetu */}
-                                                                    <TableCell>
-                                                                        <Button
-                                                                            variant="contained"
-                                                                            color="error"
-                                                                            onClick={() => handleRemoveTicket(ticket.id)}
-                                                                        >
-                                                                            Usuń
-                                                                        </Button>
-                                                                    </TableCell>
-                                                                </TableRow>
-                                                            )}
-                                                        </Draggable>
-                                                    );
-                                                }
-                                                return null;
-                                            })}
-                                            {ticketOrder.length === 0 && (
+                                                                    Usuń
+                                                                </Button>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    )}
+                                                </Draggable>
+                                            ))}
+                                            {ticketQueue.length === 0 && (
                                                 <TableRow>
-                                                    <TableCell colSpan={4} align="center"> {/* Zmiana wartości colSpan */}
+                                                    <TableCell colSpan={4} align="center">
                                                         Brak danych
                                                     </TableCell>
                                                 </TableRow>
@@ -218,6 +223,14 @@ const QueueManagement = () => {
                                 )}
                             </Droppable>
                         </DragDropContext>
+                        <TablePagination
+                            component="div"
+                            count={ticketQueue.length}
+                            page={ticketQueuePage}
+                            onPageChange={handleTicketQueuePageChange}
+                            rowsPerPage={rowsPerPage}
+                            rowsPerPageOptions={[]}
+                        />
                     </CardContent>
                 </TableContainer>
 
@@ -235,9 +248,9 @@ const QueueManagement = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {completedMeetings.map((meeting, index) => (
+                                {completedMeetingsPageData.map((meeting, index) => (
                                     <TableRow key={meeting.id}>
-                                        <TableCell>{index + 1}</TableCell>
+                                        <TableCell>{index + 1 + completedMeetingsStartIndex}</TableCell>
                                         <TableCell>{meeting.id}</TableCell>
                                         <TableCell>{meeting.priority}</TableCell>
                                     </TableRow>
@@ -251,6 +264,14 @@ const QueueManagement = () => {
                                 )}
                             </TableBody>
                         </Table>
+                        <TablePagination
+                            component="div"
+                            count={completedMeetings.length}
+                            page={completedMeetingsPage}
+                            onPageChange={handleCompletedMeetingsPageChange}
+                            rowsPerPage={rowsPerPage}
+                            rowsPerPageOptions={[]}
+                        />
                     </CardContent>
                 </TableContainer>
             </Box>

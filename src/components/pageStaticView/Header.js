@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Button, Box } from '@mui/material';
-import { CalculateSharp as CalculateIcon, DescriptionSharp as CvIcon, FeedbackSharp as FeedbackIcon } from '@mui/icons-material';
+import { Link, NavLink } from 'react-router-dom';
+import {
+    AppBar,
+    Toolbar,
+    Typography,
+    Button,
+    Box,
+    FeedbackSharp as FeedbackIcon,
+} from '@mui/material';
+import { CalculateSharp as CalculateIcon, DescriptionSharp as CvIcon } from '@mui/icons-material';
+import SuggestionIcon from '@mui/icons-material/Send';
 
 const Header = ({ username }) => {
     const [selectedTab, setSelectedTab] = useState('');
@@ -16,9 +24,9 @@ const Header = ({ username }) => {
                 <Box sx={{ flexGrow: 1, marginLeft: '240px' }}>
                     <Button
                         color="inherit"
-                        component={Link}
+                        component={NavLink}
                         to="/salaryCalculator"
-                        selected={selectedTab === '/salaryCalculator'}
+                        activeClassName="selected"
                         onClick={() => handleTabClick('/salaryCalculator')}
                         startIcon={<CalculateIcon />}
                     >
@@ -26,23 +34,13 @@ const Header = ({ username }) => {
                     </Button>
                     <Button
                         color="inherit"
-                        component={Link}
+                        component={NavLink}
                         to="/cvCreator"
-                        selected={selectedTab === '/cvCreator'}
+                        activeClassName="selected"
                         onClick={() => handleTabClick('/cvCreator')}
                         startIcon={<CvIcon />}
                     >
                         Kreator CV
-                    </Button>
-                    <Button
-                        color="inherit"
-                        component={Link}
-                        to="/sendSuggestions"
-                        selected={selectedTab === '/sendSuggestions'}
-                        onClick={() => handleTabClick('/sendSuggestions')}
-                        startIcon={<FeedbackIcon />}
-                    >
-                        Wyślij sugestie
                     </Button>
                 </Box>
                 <Typography variant="body1">

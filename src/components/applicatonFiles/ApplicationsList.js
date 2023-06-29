@@ -14,6 +14,7 @@ import {
     MenuItem,
     TextField,
     Button,
+    TablePagination,
 } from '@mui/material';
 import { ApplicationsContext } from './ApplicationsContext';
 import { JobOffersContext } from '../jobOffersFiles/JobOffersContext';
@@ -23,6 +24,8 @@ const ApplicationsList = () => {
     const { jobOffers } = useContext(JobOffersContext);
     const [selectedJobOffer, setSelectedJobOffer] = useState('');
     const [selectedStatus, setSelectedStatus] = useState('');
+    const [page, setPage] = useState(0);
+    const rowsPerPage = 10;
 
     const handleStatusChange = (id, e) => {
         const status = e.target.value;
@@ -43,29 +46,30 @@ const ApplicationsList = () => {
         setSelectedStatus(selectedStatus);
     };
 
-
-
     const filteredApplications = applications.filter((application) => {
         if (selectedJobOffer && application.jobOffer !== selectedJobOffer) {
             return false;
         }
         if (
             selectedStatus &&
-            (
-                (selectedStatus === 'Aplikacja została złożona' && application.status !== 'Aplikacja została złożona') ||
-                (selectedStatus !== 'Aplikacja została złożona' && application.status !== selectedStatus)
-            )
+            ((selectedStatus === 'Aplikacja została złożona' && application.status !== 'Aplikacja została złożona') ||
+                (selectedStatus !== 'Aplikacja została złożona' && application.status !== selectedStatus))
         ) {
             return false;
         }
         return true;
     });
 
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
 
+    const emptyRows = rowsPerPage - Math.min(rowsPerPage, filteredApplications.length - page * rowsPerPage);
 
-    const filteredApplicationsWithDefaultStatus = selectedStatus === 'Aplikacja została złożona'
-        ? filteredApplications.filter(application => application.status === 'Aplikacja została złożona')
-        : filteredApplications;
+    const filteredApplicationsWithDefaultStatus =
+        selectedStatus === 'Aplikacja została złożona'
+            ? filteredApplications.filter((application) => application.status === 'Aplikacja została złożona')
+            : filteredApplications;
 
     return (
         <Box mt={6} display="flex" flexDirection="column" alignItems="center">
@@ -120,16 +124,11 @@ const ApplicationsList = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {filteredApplicationsWithDefaultStatus.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={5} align="center">
-                                            <Typography>Brak dostępnych aplikacji.</Typography>
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    filteredApplicationsWithDefaultStatus.map((application, index) => (
+                                {filteredApplicationsWithDefaultStatus
+                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    .map((application, index) => (
                                         <TableRow key={application.id}>
-                                            <TableCell>{index + 1}</TableCell>
+                                            <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
                                             <TableCell>{application.jobOffer}</TableCell>
                                             <TableCell>
                                                 <Button
@@ -167,11 +166,23 @@ const ApplicationsList = () => {
                                                 </TextField>
                                             </TableCell>
                                         </TableRow>
-                                    ))
+                                    ))}
+                                {emptyRows > 0 && (
+                                    <TableRow style={{ height: 53 * emptyRows }}>
+                                        <TableCell colSpan={5} />
+                                    </TableRow>
                                 )}
                             </TableBody>
                         </Table>
                     </TableContainer>
+                    <TablePagination
+                        component="div"
+                        rowsPerPageOptions={[]}
+                        count={filteredApplicationsWithDefaultStatus.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        onPageChange={handleChangePage}
+                    />
                 </CardContent>
             </Card>
         </Box>

@@ -4,10 +4,6 @@ import { JobOffersProvider } from './components/jobOffersFiles/JobOffersContext'
 import { ApplicationsProvider } from './components/applicatonFiles/ApplicationsContext';
 import { ApplicationFieldsProvider } from './components/applicatonFiles/ApplicationFieldsContext';
 import { QueueProvider } from './components/queueSystemFiles/QueueContext';
-
-
-
-import SalaryCalculator from './components/salaryCalculatorFiles/SalaryCalculator';
 import JobOffers from './components/jobOffersFiles/JobOffers';
 import JobOffersList from './components/jobOffersFiles/JobOffersList';
 import JobOfferDetails from './components/jobOffersFiles/JobOfferDetails';
@@ -40,7 +36,6 @@ const App = () => {
                       <Sidebar />
                       <div style={{ flexGrow: 1 }}>
                         <Routes>
-                          <Route path="/salaryCalculator" element={<SalaryCalculator />} />
                           <Route path="/jobOffers" element={<JobOffers />} />
                           <Route path="/jobOffersList" element={<JobOffersList />} />
                           <Route path="/jobOffers/:id" element={<JobOfferDetails />} />

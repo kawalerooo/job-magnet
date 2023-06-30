@@ -16,6 +16,10 @@ import {
     Card,
     CardContent,
     Pagination,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
 } from '@mui/material';
 
 const JobOffersList = () => {
@@ -27,10 +31,26 @@ const JobOffersList = () => {
     const [selectedWorkload, setSelectedWorkload] = useState('');
     const [selectedWorkMode, setSelectedWorkMode] = useState('all');
     const [page, setPage] = useState(0);
+    const [openDialog, setOpenDialog] = useState(false); // Nowy stan dla otwarcia/zamknięcia dialogu
+    const [selectedOfferId, setSelectedOfferId] = useState(null); // Nowy stan dla przechowywania ID usuwanego zgłoszenia
     const rowsPerPage = 10;
 
     const handleDelete = (id) => {
-        deleteJobOffer(id);
+        setOpenDialog(true); // Otwórz dialog po kliknięciu Usuń
+        setSelectedOfferId(id); // Zapisz ID usuwanego zgłoszenia
+    };
+
+    const handleDeleteConfirmation = () => {
+        deleteJobOffer(selectedOfferId); // Usuń zgłoszenie
+        setOpenDialog(false); // Zamknij dialog
+    };
+
+    const handleDeleteCancel = () => {
+        setOpenDialog(false); // Zamknij dialog
+    };
+
+    const handleToggleFavorite = (id) => {
+        toggleFavoriteOffer(id);
     };
 
     const handleSearchChange = (event) => {
@@ -56,10 +76,6 @@ const JobOffersList = () => {
         } else {
             setSelectedWorkMode('all');
         }
-    };
-
-    const handleToggleFavorite = (id) => {
-        toggleFavoriteOffer(id);
     };
 
     const filterAndSearchJobOffers = () => {
@@ -380,6 +396,19 @@ const JobOffersList = () => {
                     </Box>
                 </CardContent>
             </Card>
+
+            <Dialog open={openDialog} onClose={handleDeleteCancel}>
+                <DialogTitle>Potwierdź usunięcie zgłoszenia</DialogTitle>
+                <DialogContent>Czy na pewno chcesz usunąć to zgłoszenie?</DialogContent>
+                <DialogActions>
+                    <Button onClick={handleDeleteCancel} color="primary">
+                        Anuluj
+                    </Button>
+                    <Button onClick={handleDeleteConfirmation} color="primary" autoFocus>
+                        Usuń
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 };

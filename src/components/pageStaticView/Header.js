@@ -25,16 +25,6 @@ const Header = ({ username }) => {
                     <Button
                         color="inherit"
                         component={NavLink}
-                        to="/salaryCalculator"
-                        activeClassName="selected"
-                        onClick={() => handleTabClick('/salaryCalculator')}
-                        startIcon={<CalculateIcon />}
-                    >
-                        Kalkulator wynagrodzeń
-                    </Button>
-                    <Button
-                        color="inherit"
-                        component={NavLink}
                         to="/cvCreator"
                         activeClassName="selected"
                         onClick={() => handleTabClick('/cvCreator')}

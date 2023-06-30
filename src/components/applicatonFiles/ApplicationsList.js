@@ -123,56 +123,69 @@ const ApplicationsList = () => {
                                     <TableCell style={{ fontWeight: 'bold' }}>Status</TableCell>
                                 </TableRow>
                             </TableHead>
-                            <TableBody>
-                                {filteredApplicationsWithDefaultStatus
-                                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    .map((application, index) => (
-                                        <TableRow key={application.id}>
-                                            <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-                                            <TableCell>{application.jobOffer}</TableCell>
-                                            <TableCell>
-                                                <Button
-                                                    component={Link}
-                                                    to={`/applicationDetails/${application.id}`}
-                                                    color="secondary"
-                                                    variant="contained"
-                                                    style={{ backgroundColor: '#1976d2' }}
-                                                >
-                                                    {application.id}
-                                                </Button>
-                                            </TableCell>
-                                            <TableCell>{getApplicationDate(application.id)}</TableCell>
-                                            <TableCell>
-                                                <TextField
-                                                    select
-                                                    value={application.status}
-                                                    onChange={(e) => handleStatusChange(application.id, e)}
-                                                    variant="outlined"
-                                                    sx={{ width: '100%' }}
-                                                    SelectProps={{
-                                                        displayEmpty: true,
-                                                        renderValue: (value) => value || 'Aplikacja została złożona',
-                                                    }}
-                                                >
-                                                    <MenuItem value="Aplikacja została złożona">Aplikacja została złożona</MenuItem>
-                                                    <MenuItem value="Pracownik zapoznaje się z twoim zgłoszeniem">
-                                                        Pracownik zapoznaje się z twoim zgłoszeniem
-                                                    </MenuItem>
-                                                    <MenuItem value="Zaproszenie na rozmowę kwalifikacyjną">
-                                                        Zaproszenie na rozmowę kwalifikacyjną
-                                                    </MenuItem>
-                                                    <MenuItem value="Zakończono">Zakończono</MenuItem>
-                                                    <MenuItem value="Odrzucono">Odrzucono</MenuItem>
-                                                </TextField>
-                                            </TableCell>
-                                        </TableRow>
-                                    ))}
-                                {emptyRows > 0 && (
-                                    <TableRow style={{ height: 53 * emptyRows }}>
-                                        <TableCell colSpan={5} />
+                            {filteredApplicationsWithDefaultStatus.length === 0 ? (
+                                <TableBody>
+                                    <TableRow>
+                                        <TableCell colSpan={5} align="center">
+                                            Brak aplikacji
+                                        </TableCell>
                                     </TableRow>
-                                )}
-                            </TableBody>
+                                </TableBody>
+                            ) : (
+                                <TableBody>
+                                    {filteredApplicationsWithDefaultStatus
+                                        .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        .map((application, index) => (
+                                            <TableRow key={application.id}>
+                                                <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                                                <TableCell>{application.jobOffer}</TableCell>
+                                                <TableCell>
+                                                    <Button
+                                                        component={Link}
+                                                        to={`/applicationDetails/${application.id}`}
+                                                        color="secondary"
+                                                        variant="contained"
+                                                        style={{ backgroundColor: '#1976d2' }}
+                                                    >
+                                                        {application.id}
+                                                    </Button>
+                                                </TableCell>
+                                                <TableCell>{getApplicationDate(application.id)}</TableCell>
+                                                <TableCell>
+                                                    <TextField
+                                                        select
+                                                        value={application.status}
+                                                        onChange={(e) => handleStatusChange(application.id, e)}
+                                                        variant="outlined"
+                                                        sx={{ width: '100%' }}
+                                                        SelectProps={{
+                                                            displayEmpty: true,
+                                                            renderValue: (value) =>
+                                                                value || 'Aplikacja została złożona',
+                                                        }}
+                                                    >
+                                                        <MenuItem value="Aplikacja została złożona">
+                                                            Aplikacja została złożona
+                                                        </MenuItem>
+                                                        <MenuItem value="Pracownik zapoznaje się z twoim zgłoszeniem">
+                                                            Pracownik zapoznaje się z twoim zgłoszeniem
+                                                        </MenuItem>
+                                                        <MenuItem value="Zaproszenie na rozmowę kwalifikacyjną">
+                                                            Zaproszenie na rozmowę kwalifikacyjną
+                                                        </MenuItem>
+                                                        <MenuItem value="Zakończono">Zakończono</MenuItem>
+                                                        <MenuItem value="Odrzucono">Odrzucono</MenuItem>
+                                                    </TextField>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    {emptyRows > 0 && (
+                                        <TableRow style={{ height: 53 * emptyRows }}>
+                                            <TableCell colSpan={5} />
+                                        </TableRow>
+                                    )}
+                                </TableBody>
+                            )}
                         </Table>
                     </TableContainer>
                     <TablePagination

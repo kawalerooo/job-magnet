@@ -43,18 +43,19 @@ export const QueueProvider = ({ children }) => {
     const updateTicketOrder = useCallback((queue) => {
         const sortedQueue = [...queue].sort((a, b) => {
             if (a.priority === 'High' && b.priority === 'High') {
-                return a.id.localeCompare(b.id);
+                return (a.id || '').localeCompare(b.id || '');
             } else if (a.priority === 'High') {
                 return -1;
             } else if (b.priority === 'High') {
                 return 1;
             } else {
-                return a.priority.localeCompare(b.priority);
+                return (a.priority || '').localeCompare(b.priority || '');
             }
         });
         const order = sortedQueue.map((ticket) => ticket.id);
         setTicketOrder(order);
     }, []);
+
 
     const updateTicketQueue = useCallback((queue) => {
         setTicketQueue(queue);
@@ -74,7 +75,7 @@ export const QueueProvider = ({ children }) => {
                 ticketOrder,
                 updateTicketOrder,
                 updateTicketQueue,
-                completedMeetings, // Dodane completedMeetings do wartości kontekstu
+                completedMeetings,
             }}
         >
             {children}

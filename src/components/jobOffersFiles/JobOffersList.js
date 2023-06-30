@@ -32,30 +32,6 @@ import {
     Star as StarIcon,
     KeyboardArrowUp as KeyboardArrowUpIcon,
 } from '@mui/icons-material';
-import { makeStyles } from '@mui/styles';
-
-const useStyles = makeStyles({
-    applyButton: {
-        border: 0,
-        borderRadius: 3,
-        color: 'white',
-        height: 30,
-        padding: '0 10px',
-        boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-        textTransform: 'none',
-        fontWeight: 'bold',
-        marginRight: '10px',
-    },
-    applyButtonTableCell: {
-        display: 'flex',
-        justifyContent: 'flex-start',
-        alignItems: 'center',
-        '& .MuiButton-contained': {
-            background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
-            boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
-        },
-    },
-});
 
 const JobOffersList = () => {
     const { jobOffers, deleteJobOffer, filterJobOffers, favoriteOffers, toggleFavoriteOffer, handleApply, appliedCounts } =
@@ -73,7 +49,6 @@ const JobOffersList = () => {
 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-    const classes = useStyles();
 
     useEffect(() => {
         filterAndSearchJobOffers();
@@ -181,43 +156,12 @@ const JobOffersList = () => {
 
     const displayedOffers = filterAndSearchJobOffers().slice(page * rowsPerPage, (page + 1) * rowsPerPage);
 
-    const positionLevelTranslations = {
-        intern: 'Stażysta',
-        assistant: 'Asystent',
-        junior: 'Junior',
-        mid: 'Mid',
-        senior: 'Senior',
-        director: 'Dyrektor',
-        president: 'Prezes',
-        worker: 'Pracownik',
-    };
-
-    const contractTypeTranslations = {
-        employmentContract: 'Umowa o pracę',
-        contractOfMandate: 'Umowa zlecenie',
-        b2bContract: 'Umowa B2B',
-        internshipContract: 'Umowa stażowa',
-    };
-
-    const workloadTranslations = {
-        partTime: 'W niepełnym wymiarze',
-        temporaryAdditional: 'Czasowo dodatkowe',
-        fullTime: 'W pełnym wymiarze',
-    };
-
-    const workModeTranslations = {
-        stationary: 'Stacjonarny',
-        remote: 'Zdalny',
-        hybrid: 'Hybrydowy',
-        all: 'Wszystkie',
-    };
-
     return (
         <Box display="flex" flexDirection="column" alignItems="center" mt={6}>
-            <Typography variant="h4" component="h2" gutterBottom style={{ fontWeight: 'bold', marginBottom: '20px' }}>
+            <Typography variant="h4" component="h2" gutterBottom style={{ fontWeight: 'bold' }}>
                 Lista ofert pracy
             </Typography>
-            <Box display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" mb={4}>
+            <Box mt={2} display="flex" justifyContent="center" alignItems="center">
                 <TextField
                     label="Szukaj"
                     variant="outlined"
@@ -225,7 +169,14 @@ const JobOffersList = () => {
                     onChange={handleSearchChange}
                     sx={{
                         marginRight: '16px',
-                        width: '300px',
+                        '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                        },
                     }}
                 />
                 <TextField
@@ -235,16 +186,27 @@ const JobOffersList = () => {
                     value={selectedPositionLevel}
                     onChange={handlePositionLevelChange}
                     sx={{
-                        marginRight: '16px',
                         width: '200px',
+                        marginRight: '16px',
+                        '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                        },
                     }}
                 >
                     <MenuItem value="">Wszystkie</MenuItem>
-                    {Object.keys(positionLevelTranslations).map((level) => (
-                        <MenuItem key={level} value={level}>
-                            {positionLevelTranslations[level]}
-                        </MenuItem>
-                    ))}
+                    <MenuItem value="intern">Intern</MenuItem>
+                    <MenuItem value="assistant">Assistant</MenuItem>
+                    <MenuItem value="junior">Junior</MenuItem>
+                    <MenuItem value="mid">Mid</MenuItem>
+                    <MenuItem value="senior">Senior</MenuItem>
+                    <MenuItem value="director">Director</MenuItem>
+                    <MenuItem value="president">President</MenuItem>
+                    <MenuItem value="worker">Worker</MenuItem>
                 </TextField>
                 <TextField
                     select
@@ -253,16 +215,23 @@ const JobOffersList = () => {
                     value={selectedContractType}
                     onChange={handleContractTypeChange}
                     sx={{
-                        marginRight: '16px',
                         width: '200px',
+                        marginRight: '16px',
+                        '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                        },
                     }}
                 >
                     <MenuItem value="">Wszystkie</MenuItem>
-                    {Object.keys(contractTypeTranslations).map((type) => (
-                        <MenuItem key={type} value={type}>
-                            {contractTypeTranslations[type]}
-                        </MenuItem>
-                    ))}
+                    <MenuItem value="employmentContract">Employment Contract</MenuItem>
+                    <MenuItem value="contractOfMandate">Contract of Mandate</MenuItem>
+                    <MenuItem value="b2bContract">B2B Contract</MenuItem>
+                    <MenuItem value="internshipContract">Internship Contract</MenuItem>
                 </TextField>
                 <TextField
                     select
@@ -271,16 +240,22 @@ const JobOffersList = () => {
                     value={selectedWorkload}
                     onChange={handleWorkloadChange}
                     sx={{
-                        marginRight: '16px',
                         width: '200px',
+                        marginRight: '16px',
+                        '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                        },
                     }}
                 >
                     <MenuItem value="">Wszystkie</MenuItem>
-                    {Object.keys(workloadTranslations).map((workload) => (
-                        <MenuItem key={workload} value={workload}>
-                            {workloadTranslations[workload]}
-                        </MenuItem>
-                    ))}
+                    <MenuItem value="partTime">Part-Time</MenuItem>
+                    <MenuItem value="temporaryAdditional">Temporary Additional</MenuItem>
+                    <MenuItem value="fullTime">Full-Time</MenuItem>
                 </TextField>
                 <TextField
                     select
@@ -290,6 +265,14 @@ const JobOffersList = () => {
                     onChange={handleWorkModeChange}
                     sx={{
                         width: '200px',
+                        '& .MuiOutlinedInput-root': {
+                            '&:hover fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                            '&.Mui-focused fieldset': {
+                                borderColor: '#1976d2',
+                            },
+                        },
                     }}
                 >
                     <MenuItem value="all">Wszystkie</MenuItem>
@@ -298,7 +281,7 @@ const JobOffersList = () => {
                 <IconButton component={Link} to="/newJobOffer" color="primary" size="large">
                 </IconButton>
             </Box>
-            <Card sx={{ width: '100%' }}>
+            <Card sx={{ marginTop: '16px', width: '100%' }}>
                 <CardContent>
                     <TableContainer>
                         <Table>
@@ -350,7 +333,6 @@ const JobOffersList = () => {
                                                         }}
                                                         color="primary"
                                                         variant="contained"
-                                                        className={classes.applyButton}
                                                     >
                                                         {offer.title}
                                                     </Button>
@@ -359,70 +341,58 @@ const JobOffersList = () => {
                                                 <TableCell>
                                                     {Object.keys(offer.positionLevel || {})
                                                         .filter((key) => offer.positionLevel[key])
-                                                        .map((level) => positionLevelTranslations[level])
                                                         .join(', ')}
                                                 </TableCell>
                                                 <TableCell>
                                                     {Object.keys(offer.contractType || {})
                                                         .filter((key) => offer.contractType[key])
-                                                        .map((type) => contractTypeTranslations[type])
                                                         .join(', ')}
                                                 </TableCell>
                                                 <TableCell>
                                                     {Object.keys(offer.workload || {})
                                                         .filter((key) => offer.workload[key])
-                                                        .map((workload) => workloadTranslations[workload])
                                                         .join(', ')}
                                                 </TableCell>
                                                 <TableCell>
                                                     {Object.keys(offer.workMode || {})
                                                         .filter((key) => offer.workMode[key])
-                                                        .map((workMode) => workModeTranslations[workMode])
                                                         .join(', ')}
                                                 </TableCell>
                                                 <TableCell>{appliedCounts[offer.id] || 0} zgłoszeń</TableCell>
-                                                <TableCell className={classes.applyButtonTableCell}>
-                                                    <Grid container spacing={1}>
-                                                        <Grid item>
-                                                            <IconButton
-                                                                component={Link}
-                                                                to={`/applyForm/${offer.id}`}
-                                                                color="primary"
-                                                                size="small"
-                                                                onClick={() => handleApply(offer.id)}
-                                                            >
-                                                                Aplikuj
-                                                            </IconButton>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <IconButton
-                                                                component={Link}
-                                                                to={`/editJobOffer/${offer.id}`}
-                                                                color="primary"
-                                                                size="small"
-                                                            >
-                                                                <EditIcon />
-                                                            </IconButton>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <IconButton
-                                                                onClick={() => handleDelete(offer.id)}
-                                                                color="error"
-                                                                size="small"
-                                                            >
-                                                                <DeleteIcon />
-                                                            </IconButton>
-                                                        </Grid>
-                                                        <Grid item>
-                                                            <IconButton
-                                                                onClick={() => handleToggleFavorite(offer.id)}
-                                                                color={favoriteOffers.includes(offer.id) ? 'warning' : 'default'}
-                                                                size="small"
-                                                            >
-                                                                <StarIcon />
-                                                            </IconButton>
-                                                        </Grid>
-                                                    </Grid>
+                                                <TableCell>
+                                                    <Box display="flex" gap={1}>
+                                                        <IconButton
+                                                            component={Link}
+                                                            to={`/applyForm/${offer.id}`}
+                                                            color="primary"
+                                                            size="small"
+                                                            onClick={() => handleApply(offer.id)}
+                                                        >
+                                                            Aplikuj
+                                                        </IconButton>
+                                                        <IconButton
+                                                            component={Link}
+                                                            to={`/editJobOffer/${offer.id}`}
+                                                            color="primary"
+                                                            size="small"
+                                                        >
+                                                            <EditIcon />
+                                                        </IconButton>
+                                                        <IconButton
+                                                            onClick={() => handleDelete(offer.id)}
+                                                            color="error"
+                                                            size="small"
+                                                        >
+                                                            <DeleteIcon />
+                                                        </IconButton>
+                                                        <IconButton
+                                                            onClick={() => handleToggleFavorite(offer.id)}
+                                                            color={favoriteOffers.includes(offer.id) ? 'warning' : 'default'}
+                                                            size="small"
+                                                        >
+                                                            <StarIcon />
+                                                        </IconButton>
+                                                    </Box>
                                                 </TableCell>
                                             </TableRow>
                                         </Slide>
@@ -431,15 +401,13 @@ const JobOffersList = () => {
                             </TableBody>
                         </Table>
                     </TableContainer>
-                    {displayedOffers.length > rowsPerPage && (
-                        <Box display="flex" justifyContent="center" mt={3}>
-                            <Pagination
-                                count={Math.ceil(filterAndSearchJobOffers().length / rowsPerPage)}
-                                page={page + 1}
-                                onChange={handleChangePage}
-                            />
-                        </Box>
-                    )}
+                    <Box display="flex" justifyContent="center" mt={3}>
+                        <Pagination
+                            count={Math.ceil(filterAndSearchJobOffers().length / rowsPerPage)}
+                            page={page + 1}
+                            onChange={handleChangePage}
+                        />
+                    </Box>
                 </CardContent>
             </Card>
 
@@ -448,7 +416,7 @@ const JobOffersList = () => {
                     onClick={scrollToTop}
                     color="primary"
                     size="medium"
-                    sx={{
+                    style={{
                         position: 'fixed',
                         bottom: '20px',
                         right: '20px',

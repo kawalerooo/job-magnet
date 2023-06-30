@@ -1,5 +1,12 @@
 import React, { useEffect, useRef, useState, useContext } from 'react';
-import { Create, Delete } from '@mui/icons-material';
+import {
+    Create,
+    Delete,
+    Save,
+    FormatShapes,
+    ColorLens,
+    Redo,
+} from '@mui/icons-material';
 import { QueueContext } from '../queueSystemFiles/QueueContext';
 import {
     Button,
@@ -9,17 +16,28 @@ import {
     Paper,
     Container,
     CssBaseline,
+    Dialog,
+    DialogTitle,
+    DialogContent,
+    DialogActions,
+    TextField,
 } from '@mui/material';
 
 const RecruitmentRoom = ({ id }) => {
     const canvasRef = useRef(null);
     const [ctx, setCtx] = useState(null);
     const [drawingHistory, setDrawingHistory] = useState([]);
+    const [redoHistory, setRedoHistory] = useState([]);
     const [isDrawing, setIsDrawing] = useState(false);
     const [brushSize, setBrushSize] = useState(5);
     const [brushColor, setBrushColor] = useState('#000000');
     const [currentTool, setCurrentTool] = useState('pencil');
     const [image, setImage] = useState(null);
+    const [fillColor, setFillColor] = useState('#ffffff');
+    const [showFillDialog, setShowFillDialog] = useState(false);
+    const [showSaveDialog, setShowSaveDialog] = useState(false);
+    const [showOpenDialog, setShowOpenDialog] = useState(false);
+    const [savedDrawings, setSavedDrawings] = useState([]);
 
     const colorPalette = [
         '#000000', // czarny
@@ -54,17 +72,12 @@ const RecruitmentRoom = ({ id }) => {
     }, []);
 
     useEffect(() => {
-        const stateToSave = {
-            brushSize,
-            brushColor,
-        };
-        localStorage.setItem('recruitmentRoomState', JSON.stringify(stateToSave));
-    }, [brushSize, brushColor]);
-
-    useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.ctrlKey && e.key === 'z') {
                 undo();
+            }
+            if (e.ctrlKey && e.key === 'y') {
+                redo();
             }
         };
 
@@ -74,6 +87,14 @@ const RecruitmentRoom = ({ id }) => {
             window.removeEventListener('keydown', handleKeyDown);
         };
     }, []);
+
+    useEffect(() => {
+        const stateToSave = {
+            brushSize,
+            brushColor,
+        };
+        localStorage.setItem('recruitmentRoomState', JSON.stringify(stateToSave));
+    }, [brushSize, brushColor]);
 
     const startDrawing = (e) => {
         if (ctx) {
@@ -103,6 +124,7 @@ const RecruitmentRoom = ({ id }) => {
         if (ctx) {
             const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
             setDrawingHistory([...drawingHistory, imageData]);
+            setRedoHistory([]);
         }
     };
 
@@ -121,10 +143,23 @@ const RecruitmentRoom = ({ id }) => {
         if (ctx && drawingHistory.length > 0) {
             const canvas = canvasRef.current;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
-            setDrawingHistory((prevHistory) => prevHistory.slice(0, -1));
+            const lastImageData = drawingHistory[drawingHistory.length - 1];
+            setDrawingHistory(drawingHistory.slice(0, -1));
+            setRedoHistory([...redoHistory, lastImageData]);
             drawingHistory.slice(0, -1).forEach((imageData) => {
                 ctx.putImageData(imageData, 0, 0);
             });
+        }
+    };
+
+    const redo = () => {
+        if (ctx && redoHistory.length > 0) {
+            const canvas = canvasRef.current;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const nextImageData = redoHistory[redoHistory.length - 1];
+            setRedoHistory(redoHistory.slice(0, -1));
+            ctx.putImageData(nextImageData, 0, 0);
+            setDrawingHistory([...drawingHistory, nextImageData]);
         }
     };
 
@@ -133,6 +168,7 @@ const RecruitmentRoom = ({ id }) => {
             const canvas = canvasRef.current;
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             setDrawingHistory([]);
+            setRedoHistory([]);
         }
     };
 
@@ -181,13 +217,91 @@ const RecruitmentRoom = ({ id }) => {
         e.preventDefault();
     };
 
+    const exportDrawing = () => {
+        const canvas = canvasRef.current;
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png');
+        link.download = 'my_drawing.png';
+        link.click();
+    };
+
+    const openFillDialog = () => {
+        setShowFillDialog(true);
+    };
+
+    const closeFillDialog = () => {
+        setShowFillDialog(false);
+    };
+
+    const fillCanvas = () => {
+        if (ctx) {
+            const canvas = canvasRef.current;
+            const width = canvas.width;
+            const height = canvas.height;
+
+            ctx.fillStyle = fillColor;
+            ctx.fillRect(0, 0, width, height);
+        }
+        setShowFillDialog(false);
+    };
+
+    const openSaveDialog = () => {
+        setShowSaveDialog(true);
+    };
+
+    const closeSaveDialog = () => {
+        setShowSaveDialog(false);
+    };
+
+    const saveDrawing = () => {
+        const canvas = canvasRef.current;
+        const drawingData = canvas.toDataURL('image/png');
+        const drawingName = document.getElementById('drawing-name').value;
+
+        const savedDrawing = {
+            name: drawingName,
+            data: drawingData,
+        };
+
+        setSavedDrawings([...savedDrawings, savedDrawing]);
+
+        setShowSaveDialog(false);
+    };
+
+    const openOpenDialog = () => {
+        setShowOpenDialog(true);
+    };
+
+    const closeOpenDialog = () => {
+        setShowOpenDialog(false);
+    };
+
+    const openDrawing = (drawingData) => {
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d');
+
+        const img = new Image();
+        img.onload = () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+        };
+        img.src = drawingData;
+
+        setShowOpenDialog(false);
+    };
+
     const { currentTicket } = useContext(QueueContext);
 
     return (
         <Container
             component="main"
             maxWidth="lg"
-            style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}
+            style={{
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                minHeight: '100vh',
+            }}
         >
             <CssBaseline />
             <div>
@@ -234,7 +348,18 @@ const RecruitmentRoom = ({ id }) => {
                             </Button>
                         </Grid>
                         <Grid item>
-                            <Typography variant="body1">Rozmiar rysika/gumki:</Typography>
+                            <Button
+                                variant="outlined"
+                                onClick={openFillDialog}
+                                startIcon={<FormatShapes />}
+                            >
+                                Wypełnij
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Typography variant="body1">
+                                Rozmiar rysika/gumki: {brushSize}
+                            </Typography>
                         </Grid>
                         <Grid item xs={6}>
                             <Slider
@@ -261,6 +386,17 @@ const RecruitmentRoom = ({ id }) => {
                                         />
                                     </Grid>
                                 ))}
+                                <Grid item>
+                                    <Button
+                                        onClick={() => changeBrushColor(fillColor)}
+                                        style={{
+                                            width: '2rem',
+                                            height: '2rem',
+                                            border: brushColor === fillColor ? '2px solid black' : 'none',
+                                        }}
+                                        startIcon={<ColorLens />}
+                                    />
+                                </Grid>
                             </Grid>
                         </Grid>
                         <Grid item>
@@ -278,6 +414,26 @@ const RecruitmentRoom = ({ id }) => {
                                 Cofnij ostatni ruch
                             </Button>
                         </Grid>
+                        <Grid item>
+                            <Button variant="contained" onClick={redo} startIcon={<Redo />}>
+                                Redo
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button variant="contained" onClick={exportDrawing} startIcon={<Save />}>
+                                Eksportuj rysunek
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button variant="outlined" onClick={openSaveDialog} startIcon={<Save />}>
+                                Zapisz rysunek
+                            </Button>
+                        </Grid>
+                        <Grid item>
+                            <Button variant="outlined" onClick={openOpenDialog} startIcon={<Save />}>
+                                Otwórz rysunek
+                            </Button>
+                        </Grid>
                     </Grid>
                     <canvas
                         ref={canvasRef}
@@ -292,6 +448,58 @@ const RecruitmentRoom = ({ id }) => {
                     />
                 </div>
             </div>
+            <Dialog open={showFillDialog} onClose={closeFillDialog}>
+                <DialogTitle>Wypełnij</DialogTitle>
+                <DialogContent>
+                    <Typography>Wybierz kolor wypełnienia:</Typography>
+                    <Grid container spacing={1} justifyContent="center">
+                        {colorPalette.map((color) => (
+                            <Grid item key={color}>
+                                <Button
+                                    onClick={() => setFillColor(color)}
+                                    style={{
+                                        backgroundColor: color,
+                                        width: '2rem',
+                                        height: '2rem',
+                                        border: fillColor === color ? '2px solid black' : 'none',
+                                    }}
+                                />
+                            </Grid>
+                        ))}
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={fillCanvas}>Wypełnij</Button>
+                    <Button onClick={closeFillDialog}>Anuluj</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={showSaveDialog} onClose={closeSaveDialog}>
+                <DialogTitle>Zapisz rysunek</DialogTitle>
+                <DialogContent>
+                    <TextField id="drawing-name" label="Nazwa rysunku" fullWidth />
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={saveDrawing}>Zapisz</Button>
+                    <Button onClick={closeSaveDialog}>Anuluj</Button>
+                </DialogActions>
+            </Dialog>
+            <Dialog open={showOpenDialog} onClose={closeOpenDialog}>
+                <DialogTitle>Otwórz rysunek</DialogTitle>
+                <DialogContent>
+                    {savedDrawings.map((drawing, index) => (
+                        <Button
+                            key={index}
+                            onClick={() => openDrawing(drawing.data)}
+                            style={{ marginBottom: '1rem' }}
+                        >
+                            {drawing.name}
+                        </Button>
+                    ))}
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={closeOpenDialog}>Anuluj</Button>
+                </DialogActions>
+            </Dialog>
         </Container>
     );
 };

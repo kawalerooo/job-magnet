@@ -29,6 +29,7 @@
     "react-sketchpad": "^0.0.3",
     "react-textarea-autosize": "^8.4.1",
     "react-three-fiber": "^6.0.13",
+    "styled-components": "^6.0.1",
     "web-vitals": "^2.1.4",
     "yup": "^1.2.0"
   },

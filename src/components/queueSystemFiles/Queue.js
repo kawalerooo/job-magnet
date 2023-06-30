@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Box, Typography, TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Card, CardContent } from '@mui/material';
 import { QueueContext } from './QueueContext';
+import { Slide, TransitionProps } from '@mui/material';
 
 const Queue = () => {
     const { ticketQueue, currentTicket, updateTicketOrder } = useContext(QueueContext);
@@ -47,21 +48,15 @@ const Queue = () => {
                                 </TableRow>
                             </TableHead>
                             <TableBody>
-                                {ticketQueue.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={3} align="center">
-                                            Brak danych
-                                        </TableCell>
-                                    </TableRow>
-                                ) : (
-                                    ticketQueue.map((ticket, index) => (
-                                        <TableRow key={ticket.id}>
+                                {ticketQueue.map((ticket, index) => (
+                                    <Slide direction="down" in={true} key={ticket.id} timeout={300 + index * 100}>
+                                        <TableRow>
                                             <TableCell>{index + 1}</TableCell>
                                             <TableCell>{ticket.id}</TableCell>
                                             <TableCell>{ticket.priority}</TableCell>
                                         </TableRow>
-                                    ))
-                                )}
+                                    </Slide>
+                                ))}
                             </TableBody>
                         </Table>
                     </TableContainer>

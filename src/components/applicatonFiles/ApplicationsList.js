@@ -15,9 +15,42 @@ import {
     TextField,
     Button,
     TablePagination,
+    Slide,
+    IconButton,
+    Grid,
 } from '@mui/material';
 import { ApplicationsContext } from './ApplicationsContext';
 import { JobOffersContext } from '../jobOffersFiles/JobOffersContext';
+import { makeStyles } from '@mui/styles';
+import {
+    Delete as DeleteIcon,
+    Edit as EditIcon,
+    Star as StarIcon,
+    KeyboardArrowUp as KeyboardArrowUpIcon,
+} from '@mui/icons-material';
+
+const useStyles = makeStyles({
+    applyButton: {
+        border: 0,
+        borderRadius: 3,
+        color: 'white',
+        height: 30,
+        padding: '0 10px',
+        boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+        textTransform: 'none',
+        fontWeight: 'bold',
+        marginRight: '10px',
+    },
+    applyButtonTableCell: {
+        display: 'flex',
+        justifyContent: 'flex-start',
+        alignItems: 'center',
+        '& .MuiButton-contained': {
+            background: 'linear-gradient(45deg, #FE6B8B 30%, #FF8E53 90%)',
+            boxShadow: '0 3px 5px 2px rgba(255, 105, 135, .3)',
+        },
+    },
+});
 
 const ApplicationsList = () => {
     const { applications, updateApplicationStatus, getApplicationDate } = useContext(ApplicationsContext);
@@ -71,44 +104,56 @@ const ApplicationsList = () => {
             ? filteredApplications.filter((application) => application.status === 'Aplikacja została złożona')
             : filteredApplications;
 
+    const classes = useStyles();
+
     return (
         <Box mt={6} display="flex" flexDirection="column" alignItems="center">
             <Typography variant="h4" component="h2" gutterBottom style={{ fontWeight: 'bold' }}>
                 Lista aplikacji
             </Typography>
-            <Box mt={2} display="flex" justifyContent="center" alignItems="center">
-                <TextField
-                    select
-                    label="Filtruj ofertę pracy"
-                    variant="outlined"
-                    value={selectedJobOffer}
-                    onChange={handleJobOfferChange}
-                    sx={{ width: '300px', marginRight: '16px' }}
-                >
-                    <MenuItem value="">Wszystkie</MenuItem>
-                    {jobOffers.map((offer) => (
-                        <MenuItem key={offer.id} value={offer.title}>
-                            {offer.title}
-                        </MenuItem>
-                    ))}
-                </TextField>
-                <TextField
-                    select
-                    label="Filtruj status"
-                    variant="outlined"
-                    value={selectedStatus}
-                    onChange={handleStatusFilterChange}
-                    sx={{ width: '300px' }}
-                >
-                    <MenuItem value="">Wszystkie</MenuItem>
-                    <MenuItem value="Aplikacja została złożona">Aplikacja została złożona</MenuItem>
-                    <MenuItem value="Pracownik zapoznaje się z twoim zgłoszeniem">
-                        Pracownik zapoznaje się z twoim zgłoszeniem
-                    </MenuItem>
-                    <MenuItem value="Zaproszenie na rozmowę kwalifikacyjną">Zaproszenie na rozmowę kwalifikacyjną</MenuItem>
-                    <MenuItem value="Zakończono">Zakończono</MenuItem>
-                    <MenuItem value="Odrzucono">Odrzucono</MenuItem>
-                </TextField>
+            <Box mt={2} display="flex" justifyContent="center" alignItems="center" flexWrap="wrap" mb={4}>
+                <Grid container spacing={2} alignItems="center">
+                    <Grid item>
+                        <TextField
+                            select
+                            label="Filtruj ofertę pracy"
+                            variant="outlined"
+                            value={selectedJobOffer}
+                            onChange={handleJobOfferChange}
+                            sx={{ width: '300px' }}
+                        >
+                            <MenuItem value="">Wszystkie</MenuItem>
+                            {jobOffers.map((offer) => (
+                                <MenuItem key={offer.id} value={offer.title}>
+                                    {offer.title}
+                                </MenuItem>
+                            ))}
+                        </TextField>
+                    </Grid>
+                    <Grid item>
+                        <TextField
+                            select
+                            label="Filtruj status"
+                            variant="outlined"
+                            value={selectedStatus}
+                            onChange={handleStatusFilterChange}
+                            sx={{ width: '300px' }}
+                        >
+                            <MenuItem value="">Wszystkie</MenuItem>
+                            <MenuItem value="Aplikacja została złożona">Aplikacja została złożona</MenuItem>
+                            <MenuItem value="Pracownik zapoznaje się z twoim zgłoszeniem">
+                                Pracownik zapoznaje się z twoim zgłoszeniem
+                            </MenuItem>
+                            <MenuItem value="Zaproszenie na rozmowę kwalifikacyjną">Zaproszenie na rozmowę kwalifikacyjną</MenuItem>
+                            <MenuItem value="Zakończono">Zakończono</MenuItem>
+                            <MenuItem value="Odrzucono">Odrzucono</MenuItem>
+                        </TextField>
+                    </Grid>
+                    <Grid item>
+                        <IconButton component={Link} to="/newApplication" color="primary" size="large">
+                        </IconButton>
+                    </Grid>
+                </Grid>
             </Box>
             <Card>
                 <CardContent>
@@ -126,7 +171,7 @@ const ApplicationsList = () => {
                             {filteredApplicationsWithDefaultStatus.length === 0 ? (
                                 <TableBody>
                                     <TableRow>
-                                        <TableCell colSpan={5} align="center">
+                                        <TableCell colSpan={6} align="center">
                                             Brak aplikacji
                                         </TableCell>
                                     </TableRow>
@@ -136,52 +181,53 @@ const ApplicationsList = () => {
                                     {filteredApplicationsWithDefaultStatus
                                         .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                                         .map((application, index) => (
-                                            <TableRow key={application.id}>
-                                                <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
-                                                <TableCell>{application.jobOffer}</TableCell>
-                                                <TableCell>
-                                                    <Button
-                                                        component={Link}
-                                                        to={`/applicationDetails/${application.id}`}
-                                                        color="secondary"
-                                                        variant="contained"
-                                                        style={{ backgroundColor: '#1976d2' }}
-                                                    >
-                                                        {application.id}
-                                                    </Button>
-                                                </TableCell>
-                                                <TableCell>{getApplicationDate(application.id)}</TableCell>
-                                                <TableCell>
-                                                    <TextField
-                                                        select
-                                                        value={application.status}
-                                                        onChange={(e) => handleStatusChange(application.id, e)}
-                                                        variant="outlined"
-                                                        sx={{ width: '100%' }}
-                                                        SelectProps={{
-                                                            displayEmpty: true,
-                                                            renderValue: (value) =>
-                                                                value || 'Aplikacja została złożona',
-                                                        }}
-                                                    >
-                                                        <MenuItem value="Aplikacja została złożona">
-                                                            Aplikacja została złożona
-                                                        </MenuItem>
-                                                        <MenuItem value="Pracownik zapoznaje się z twoim zgłoszeniem">
-                                                            Pracownik zapoznaje się z twoim zgłoszeniem
-                                                        </MenuItem>
-                                                        <MenuItem value="Zaproszenie na rozmowę kwalifikacyjną">
-                                                            Zaproszenie na rozmowę kwalifikacyjną
-                                                        </MenuItem>
-                                                        <MenuItem value="Zakończono">Zakończono</MenuItem>
-                                                        <MenuItem value="Odrzucono">Odrzucono</MenuItem>
-                                                    </TextField>
-                                                </TableCell>
-                                            </TableRow>
+                                            <Slide direction="up" in={true} key={application.id} timeout={300 + index * 100}>
+                                                <TableRow>
+                                                    <TableCell>{index + 1 + page * rowsPerPage}</TableCell>
+                                                    <TableCell>{application.jobOffer}</TableCell>
+                                                    <TableCell>
+                                                        <Button
+                                                            component={Link}
+                                                            to={`/applicationDetails/${application.id}`}
+                                                            color="secondary"
+                                                            variant="contained"
+                                                            style={{ backgroundColor: '#1976d2' }}
+                                                        >
+                                                            {application.id}
+                                                        </Button>
+                                                    </TableCell>
+                                                    <TableCell>{getApplicationDate(application.id)}</TableCell>
+                                                    <TableCell>
+                                                        <TextField
+                                                            select
+                                                            value={application.status}
+                                                            onChange={(e) => handleStatusChange(application.id, e)}
+                                                            variant="outlined"
+                                                            SelectProps={{
+                                                                displayEmpty: true,
+                                                                renderValue: (value) =>
+                                                                    value || 'Aplikacja została złożona',
+                                                            }}
+                                                        >
+                                                            <MenuItem value="Aplikacja została złożona">
+                                                                Aplikacja została złożona
+                                                            </MenuItem>
+                                                            <MenuItem value="Pracownik zapoznaje się z twoim zgłoszeniem">
+                                                                Pracownik zapoznaje się z twoim zgłoszeniem
+                                                            </MenuItem>
+                                                            <MenuItem value="Zaproszenie na rozmowę kwalifikacyjną">
+                                                                Zaproszenie na rozmowę kwalifikacyjną
+                                                            </MenuItem>
+                                                            <MenuItem value="Zakończono">Zakończono</MenuItem>
+                                                            <MenuItem value="Odrzucono">Odrzucono</MenuItem>
+                                                        </TextField>
+                                                    </TableCell>
+                                                </TableRow>
+                                            </Slide>
                                         ))}
                                     {emptyRows > 0 && (
                                         <TableRow style={{ height: 53 * emptyRows }}>
-                                            <TableCell colSpan={5} />
+                                            <TableCell colSpan={6} />
                                         </TableRow>
                                     )}
                                 </TableBody>

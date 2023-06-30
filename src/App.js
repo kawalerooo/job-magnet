@@ -30,30 +30,30 @@ const App = () => {
           <ApplicationsProvider>
             <ApplicationFieldsProvider>
               <QueueProvider>
-                  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-                    <Header username={username} />
-                    <div style={{ display: 'flex', flexGrow: 1 }}>
-                      <Sidebar />
-                      <div style={{ flexGrow: 1 }}>
-                        <Routes>
-                          <Route path="/jobOffers" element={<JobOffers />} />
-                          <Route path="/jobOffersList" element={<JobOffersList />} />
-                          <Route path="/jobOffers/:id" element={<JobOfferDetails />} />
-                          <Route path="/editJobOffer/:id" element={<EditJobOffer />} />
-                          <Route path="/applyForm/:id" element={<ApplyForm />} />
-                          <Route path="/applicationsList" element={<ApplicationsList />} />
-                          <Route path="/applicationConfirmation" element={<ApplicationConfirmation />} />
-                          <Route path="/applicationDetails/:id" element={<ApplicationDetails />} />
-                          <Route path="/createTicket" element={<CreateTicket />} />
-                          <Route path="/queue" element={<Queue />} />
-                          <Route path="/queueManagement" element={<QueueManagement />} />
-                          <Route path="/recruitment/:id" element={<RecruitmentRoom />} />
-                          <Route path="/cvCreator" element={<CVCreator />} />
-                        </Routes>
-                      </div>
+                <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+                  <Header username={username} />
+                  <div style={{ display: 'flex', flexGrow: 1 }}>
+                    <Sidebar />
+                    <div style={{ flexGrow: 1 }}>
+                      <Routes>
+                        <Route path="/jobOffers" element={<JobOffers />} />
+                        <Route path="/jobOffersList" element={<JobOffersList />} />
+                        <Route path="/jobOffers/:id" element={<JobOfferDetails />} />
+                        <Route path="/editJobOffer/:id" element={<EditJobOffer />} />
+                        <Route path="/applyForm/:id" element={<ApplyForm />} />
+                        <Route path="/applicationsList" element={<ApplicationsList />} />
+                        <Route path="/applicationConfirmation" element={<ApplicationConfirmation />} />
+                        <Route path="/applicationDetails/:id" element={<ApplicationDetails />} />
+                        <Route path="/createTicket" element={<CreateTicket />} />
+                        <Route path="/queue" element={<Queue />} />
+                        <Route path="/queueManagement" element={<QueueManagement />} />
+                        <Route path="/recruitment/:id" element={<RecruitmentRoom />} />
+                        <Route path="/cvCreator" element={<CVCreator />} />
+                      </Routes>
                     </div>
-                    <Footer />
                   </div>
+                  <Footer />
+                </div>
               </QueueProvider>
             </ApplicationFieldsProvider>
           </ApplicationsProvider>

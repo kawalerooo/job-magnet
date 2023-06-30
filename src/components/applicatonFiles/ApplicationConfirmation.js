@@ -2,7 +2,6 @@ import React from 'react';
 import { Typography, Box, Button, createTheme, ThemeProvider } from '@mui/material';
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 import { Link } from 'react-router-dom';
-
 const theme = createTheme({
     components: {
         MuiButton: {

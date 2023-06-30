@@ -1,5 +1,5 @@
 import React, { useState, useContext } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import {
     Drawer,
     List,
@@ -7,7 +7,6 @@ import {
     ListItemIcon,
     ListItemText,
     Box,
-    Switch,
 } from '@mui/material';
 import {
     Home as HomeIcon,
@@ -17,6 +16,7 @@ import {
     Create as CreateIcon,
     Queue as QueueIcon,
     Settings as SettingsIcon,
+    DescriptionSharp as CvIcon,
 } from '@mui/icons-material';
 import appLogo from '../../appLogo.png';
 import { QueueContext } from '../queueSystemFiles/QueueContext';
@@ -249,6 +249,29 @@ const Sidebar = () => {
                         </ListItemIcon>
                         <ListItemText
                             primary="Zarządzanie kolejką"
+                            primaryTypographyProps={{ sx: { textAlign: 'center' } }}
+                        />
+                    </ListItem>
+
+                    <ListItem
+                        button
+                        component={Link}
+                        to="/cvCreator"
+                        selected={selectedTab === '/cvCreator'}
+                        onClick={() => handleTabClick('/cvCreator')}
+                        sx={{
+                            color: '#FFF',
+                            backgroundColor: selectedTab === '/cvCreator' ? '#1976d2' : 'transparent',
+                            '&:hover': {
+                                backgroundColor: '#1976d2',
+                            },
+                        }}
+                    >
+                        <ListItemIcon sx={{ color: '#FFF' }}>
+                            <CvIcon />
+                        </ListItemIcon>
+                        <ListItemText
+                            primary="Kreator CV"
                             primaryTypographyProps={{ sx: { textAlign: 'center' } }}
                         />
                     </ListItem>

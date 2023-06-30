@@ -97,6 +97,37 @@ const JobOffersList = () => {
         }
     };
 
+    const positionLevelTranslations = {
+        intern: 'Stażysta',
+        assistant: 'Asystent',
+        junior: 'Junior',
+        mid: 'Mid',
+        senior: 'Senior',
+        director: 'Dyrektor',
+        president: 'Prezes',
+        worker: 'Pracownik',
+    };
+
+    const contractTypeTranslations = {
+        employmentContract: 'Umowa o pracę',
+        contractOfMandate: 'Umowa zlecenie',
+        b2bContract: 'Umowa B2B',
+        internshipContract: 'Umowa stażowa',
+    };
+
+    const workloadTranslations = {
+        partTime: 'W niepełnym wymiarze',
+        temporaryAdditional: 'Czasowo dodatkowe',
+        fullTime: 'W pełnym wymiarze',
+    };
+
+    const workModeTranslations = {
+        stationary: 'Stacjonarny',
+        remote: 'Zdalny',
+        hybrid: 'Hybrydowy',
+        all: 'Wszystkie',
+    };
+
     const filterAndSearchJobOffers = () => {
         let filteredOffers = filterJobOffers();
 
@@ -199,14 +230,11 @@ const JobOffersList = () => {
                     }}
                 >
                     <MenuItem value="">Wszystkie</MenuItem>
-                    <MenuItem value="intern">Intern</MenuItem>
-                    <MenuItem value="assistant">Assistant</MenuItem>
-                    <MenuItem value="junior">Junior</MenuItem>
-                    <MenuItem value="mid">Mid</MenuItem>
-                    <MenuItem value="senior">Senior</MenuItem>
-                    <MenuItem value="director">Director</MenuItem>
-                    <MenuItem value="president">President</MenuItem>
-                    <MenuItem value="worker">Worker</MenuItem>
+                    {Object.entries(positionLevelTranslations).map(([value, label]) => (
+                        <MenuItem key={value} value={value}>
+                            {label}
+                        </MenuItem>
+                    ))}
                 </TextField>
                 <TextField
                     select
@@ -228,10 +256,11 @@ const JobOffersList = () => {
                     }}
                 >
                     <MenuItem value="">Wszystkie</MenuItem>
-                    <MenuItem value="employmentContract">Employment Contract</MenuItem>
-                    <MenuItem value="contractOfMandate">Contract of Mandate</MenuItem>
-                    <MenuItem value="b2bContract">B2B Contract</MenuItem>
-                    <MenuItem value="internshipContract">Internship Contract</MenuItem>
+                    {Object.entries(contractTypeTranslations).map(([value, label]) => (
+                        <MenuItem key={value} value={value}>
+                            {label}
+                        </MenuItem>
+                    ))}
                 </TextField>
                 <TextField
                     select
@@ -253,9 +282,11 @@ const JobOffersList = () => {
                     }}
                 >
                     <MenuItem value="">Wszystkie</MenuItem>
-                    <MenuItem value="partTime">Part-Time</MenuItem>
-                    <MenuItem value="temporaryAdditional">Temporary Additional</MenuItem>
-                    <MenuItem value="fullTime">Full-Time</MenuItem>
+                    {Object.entries(workloadTranslations).map(([value, label]) => (
+                        <MenuItem key={value} value={value}>
+                            {label}
+                        </MenuItem>
+                    ))}
                 </TextField>
                 <TextField
                     select
@@ -279,6 +310,7 @@ const JobOffersList = () => {
                     <MenuItem value="favorites">Tylko ulubione</MenuItem>
                 </TextField>
                 <IconButton component={Link} to="/newJobOffer" color="primary" size="large">
+                    {/* Dodaj ikonę dla przycisku */}
                 </IconButton>
             </Box>
             <Card sx={{ marginTop: '16px', width: '100%' }}>
@@ -341,21 +373,25 @@ const JobOffersList = () => {
                                                 <TableCell>
                                                     {Object.keys(offer.positionLevel || {})
                                                         .filter((key) => offer.positionLevel[key])
+                                                        .map((key) => positionLevelTranslations[key])
                                                         .join(', ')}
                                                 </TableCell>
                                                 <TableCell>
                                                     {Object.keys(offer.contractType || {})
                                                         .filter((key) => offer.contractType[key])
+                                                        .map((key) => contractTypeTranslations[key])
                                                         .join(', ')}
                                                 </TableCell>
                                                 <TableCell>
                                                     {Object.keys(offer.workload || {})
                                                         .filter((key) => offer.workload[key])
+                                                        .map((key) => workloadTranslations[key])
                                                         .join(', ')}
                                                 </TableCell>
                                                 <TableCell>
                                                     {Object.keys(offer.workMode || {})
                                                         .filter((key) => offer.workMode[key])
+                                                        .map((key) => workModeTranslations[key])
                                                         .join(', ')}
                                                 </TableCell>
                                                 <TableCell>{appliedCounts[offer.id] || 0} zgłoszeń</TableCell>

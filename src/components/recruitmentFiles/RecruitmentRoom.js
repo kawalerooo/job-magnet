@@ -1,505 +1,318 @@
-import React, { useEffect, useRef, useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import {
-    Create,
-    Delete,
-    Save,
-    FormatShapes,
-    ColorLens,
-    Redo,
-} from '@mui/icons-material';
-import { QueueContext } from '../queueSystemFiles/QueueContext';
-import {
-    Button,
-    Slider,
     Grid,
     Typography,
     Paper,
     Container,
     CssBaseline,
-    Dialog,
-    DialogTitle,
-    DialogContent,
-    DialogActions,
     TextField,
+    List,
+    ListItem,
+    ListItemText,
+    IconButton,
+    Button,
 } from '@mui/material';
+import {
+    DeleteOutlined,
+    ReplyOutlined,
+} from '@mui/icons-material';
+import { QueueContext } from '../queueSystemFiles/QueueContext';
+import jsPDF from 'jspdf';
+import './RecruitmentRoom.css';
+import { ListItemSecondaryAction } from '@mui/material';
 
 const RecruitmentRoom = ({ id }) => {
-    const canvasRef = useRef(null);
-    const [ctx, setCtx] = useState(null);
-    const [drawingHistory, setDrawingHistory] = useState([]);
-    const [redoHistory, setRedoHistory] = useState([]);
-    const [isDrawing, setIsDrawing] = useState(false);
-    const [brushSize, setBrushSize] = useState(5);
-    const [brushColor, setBrushColor] = useState('#000000');
-    const [currentTool, setCurrentTool] = useState('pencil');
-    const [image, setImage] = useState(null);
-    const [fillColor, setFillColor] = useState('#ffffff');
-    const [showFillDialog, setShowFillDialog] = useState(false);
-    const [showSaveDialog, setShowSaveDialog] = useState(false);
-    const [showOpenDialog, setShowOpenDialog] = useState(false);
-    const [savedDrawings, setSavedDrawings] = useState([]);
-
-    const colorPalette = [
-        '#000000', // czarny
-        '#ff0000', // czerwony
-        '#00ff00', // zielony
-        '#0000ff', // niebieski
-        '#ffff00', // żółty
-        '#ff00ff', // różowy
-        '#00ffff', // cyjan
-        '#ff8c00', // pomarańczowy
-        '#800080', // fioletowy
-        '#008080', // turkusowy
-    ];
-
-    useEffect(() => {
-        const canvas = canvasRef.current;
-        const context = canvas.getContext('2d');
-        setCtx(context);
-
-        context.lineWidth = brushSize;
-        context.lineCap = 'round';
-        context.strokeStyle = brushColor;
-
-        const savedState = localStorage.getItem('recruitmentRoomState');
-        if (savedState) {
-            const parsedState = JSON.parse(savedState);
-            setBrushSize(parsedState.brushSize);
-            setBrushColor(parsedState.brushColor);
-            context.lineWidth = parsedState.brushSize;
-            context.strokeStyle = parsedState.brushColor;
-        }
-    }, []);
-
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            if (e.ctrlKey && e.key === 'z') {
-                undo();
-            }
-            if (e.ctrlKey && e.key === 'y') {
-                redo();
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, []);
-
-    useEffect(() => {
-        const stateToSave = {
-            brushSize,
-            brushColor,
-        };
-        localStorage.setItem('recruitmentRoomState', JSON.stringify(stateToSave));
-    }, [brushSize, brushColor]);
-
-    const startDrawing = (e) => {
-        if (ctx) {
-            let tool = 'pencil';
-            if (currentTool === 'eraser') {
-                tool = 'eraser';
-            }
-
-            if (tool === 'eraser') {
-                ctx.globalCompositeOperation = 'destination-out';
-            } else {
-                ctx.globalCompositeOperation = 'source-over';
-            }
-
-            setIsDrawing(true);
-            const canvas = canvasRef.current;
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            ctx.beginPath();
-            ctx.moveTo(x, y);
-        }
-    };
-
-    const stopDrawing = () => {
-        setIsDrawing(false);
-        if (ctx) {
-            const imageData = ctx.getImageData(0, 0, ctx.canvas.width, ctx.canvas.height);
-            setDrawingHistory([...drawingHistory, imageData]);
-            setRedoHistory([]);
-        }
-    };
-
-    const draw = (e) => {
-        if (isDrawing && ctx) {
-            const canvas = canvasRef.current;
-            const rect = canvas.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            ctx.lineTo(x, y);
-            ctx.stroke();
-        }
-    };
-
-    const undo = () => {
-        if (ctx && drawingHistory.length > 0) {
-            const canvas = canvasRef.current;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const lastImageData = drawingHistory[drawingHistory.length - 1];
-            setDrawingHistory(drawingHistory.slice(0, -1));
-            setRedoHistory([...redoHistory, lastImageData]);
-            drawingHistory.slice(0, -1).forEach((imageData) => {
-                ctx.putImageData(imageData, 0, 0);
-            });
-        }
-    };
-
-    const redo = () => {
-        if (ctx && redoHistory.length > 0) {
-            const canvas = canvasRef.current;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const nextImageData = redoHistory[redoHistory.length - 1];
-            setRedoHistory(redoHistory.slice(0, -1));
-            ctx.putImageData(nextImageData, 0, 0);
-            setDrawingHistory([...drawingHistory, nextImageData]);
-        }
-    };
-
-    const clearCanvas = () => {
-        if (ctx) {
-            const canvas = canvasRef.current;
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            setDrawingHistory([]);
-            setRedoHistory([]);
-        }
-    };
-
-    const changeBrushSize = (e, newValue) => {
-        setBrushSize(newValue);
-        if (ctx) {
-            ctx.lineWidth = newValue;
-        }
-    };
-
-    const changeBrushColor = (color) => {
-        setBrushColor(color);
-        if (ctx) {
-            ctx.strokeStyle = color;
-        }
-    };
-
-    const changeTool = (tool) => {
-        setCurrentTool(tool);
-    };
-
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const file = e.dataTransfer.files[0];
-
-        const reader = new FileReader();
-        reader.onload = () => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = canvasRef.current;
-                const ctx = canvas.getContext('2d');
-
-                const aspectRatio = img.width / img.height;
-                const canvasWidth = canvas.width;
-                const canvasHeight = canvasWidth / aspectRatio;
-
-                ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
-                setImage(img);
-            };
-            img.src = reader.result;
-        };
-        reader.readAsDataURL(file);
-    };
-
-    const handleDragOver = (e) => {
-        e.preventDefault();
-    };
-
-    const exportDrawing = () => {
-        const canvas = canvasRef.current;
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = 'my_drawing.png';
-        link.click();
-    };
-
-    const openFillDialog = () => {
-        setShowFillDialog(true);
-    };
-
-    const closeFillDialog = () => {
-        setShowFillDialog(false);
-    };
-
-    const fillCanvas = () => {
-        if (ctx) {
-            const canvas = canvasRef.current;
-            const width = canvas.width;
-            const height = canvas.height;
-
-            ctx.fillStyle = fillColor;
-            ctx.fillRect(0, 0, width, height);
-        }
-        setShowFillDialog(false);
-    };
-
-    const openSaveDialog = () => {
-        setShowSaveDialog(true);
-    };
-
-    const closeSaveDialog = () => {
-        setShowSaveDialog(false);
-    };
-
-    const saveDrawing = () => {
-        const canvas = canvasRef.current;
-        const drawingData = canvas.toDataURL('image/png');
-        const drawingName = document.getElementById('drawing-name').value;
-
-        const savedDrawing = {
-            name: drawingName,
-            data: drawingData,
-        };
-
-        setSavedDrawings([...savedDrawings, savedDrawing]);
-
-        setShowSaveDialog(false);
-    };
-
-    const openOpenDialog = () => {
-        setShowOpenDialog(true);
-    };
-
-    const closeOpenDialog = () => {
-        setShowOpenDialog(false);
-    };
-
-    const openDrawing = (drawingData) => {
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-
-        const img = new Image();
-        img.onload = () => {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.drawImage(img, 0, 0);
-        };
-        img.src = drawingData;
-
-        setShowOpenDialog(false);
-    };
-
     const { currentTicket } = useContext(QueueContext);
 
+    const [notes, setNotes] = useState({});
+    const [input, setInput] = useState('');
+    const [selectedMessageIndex, setSelectedMessageIndex] = useState(null);
+    const [contextMenuIndex, setContextMenuIndex] = useState(null);
+    const [contextMenuAnchor, setContextMenuAnchor] = useState(null);
+    const [droppedImage, setDroppedImage] = useState(null);
+
+    useEffect(() => {
+        const savedNotes = localStorage.getItem('savedNotes');
+        if (savedNotes) {
+            setNotes(JSON.parse(savedNotes));
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('savedNotes', JSON.stringify(notes));
+    }, [notes]);
+
+    const handleSend = () => {
+        if (input) {
+            const now = new Date();
+            const timestamp = `${now.toLocaleDateString()} ${now.toLocaleTimeString()}`;
+            const formattedInput = input.replace(/\n/g, '<br />');
+            const message = {
+                type: 'text',
+                content: formattedInput,
+                image: droppedImage ? URL.createObjectURL(droppedImage) : null,
+                timestamp: timestamp,
+                replyTo: selectedMessageIndex,
+            };
+            const newNotes = { ...notes };
+            if (!newNotes[id]) {
+                newNotes[id] = [];
+            }
+            newNotes[id].push(message);
+            setNotes(newNotes);
+            setInput('');
+            setSelectedMessageIndex(null);
+            setDroppedImage(null);
+        }
+    };
+
+    const exportToPDF = () => {
+        const pdf = new jsPDF();
+        const pageWidth = pdf.internal.pageSize.getWidth();
+        const pageHeight = pdf.internal.pageSize.getHeight();
+        const lineHeight = 10;
+        pdf.setFontSize(12);
+
+        if (currentTicket) {
+            pdf.setFontSize(14);
+            pdf.text(`Archiwizacja aplikacji o ID : ${currentTicket.id}`, 15, 15);
+            pdf.setFontSize(12);
+        }
+
+        pdf.text(`Data i godzina archiwizacji: ${new Date().toLocaleString()}`, 15, 25);
+
+        let y = 40;
+        let currentPage = 1;
+
+        notes[id]?.forEach((message, index) => {
+            if (y + 60 > pageHeight) {
+                pdf.addPage();
+                currentPage++;
+                y = 40;
+            }
+
+            if (message.replyTo !== null && notes[id][message.replyTo]) {
+                pdf.setTextColor(150);
+                pdf.setFontSize(10);
+                pdf.text(`W odpowiedzi na: ${notes[id][message.replyTo].content}`, 25, y);
+                y += lineHeight;
+                pdf.setTextColor(0);
+                pdf.setFontSize(12);
+            }
+
+            const messageLines = pdf.splitTextToSize(
+                message.content.replace(/<br\s*\/?>/g, '\n'),
+                pageWidth - 30
+            );
+
+            pdf.setFillColor(240);
+            pdf.rect(20, y - 5, pageWidth - 40, messageLines.length * lineHeight + 15, 'F');
+
+            pdf.setTextColor(0);
+            pdf.text(messageLines, 25, y + 5);
+            y += messageLines.length * lineHeight + 20;
+
+            if (message.image) {
+                pdf.addImage(message.image, 'JPEG', 25, y, 80, 60);
+                y += 70;
+            }
+
+            pdf.setFontSize(10);
+            pdf.setTextColor(150);
+            pdf.text(message.timestamp, 25, y);
+            pdf.setTextColor(0);
+            pdf.setFontSize(12);
+            y += lineHeight;
+
+            y += 10;
+
+            if (y + 60 > pageHeight && index < notes[id].length - 1) {
+                pdf.addPage();
+                currentPage++;
+                y = 40;
+            }
+        });
+
+        for (let i = 1; i <= currentPage; i++) {
+            pdf.setPage(i);
+            pdf.setFontSize(10);
+            pdf.text(`Strona ${i} z ${currentPage}`, pageWidth - 30, pageHeight - 10);
+        }
+
+        pdf.save(`chat_${id}_${new Date().toISOString()}.pdf`);
+    };
+
+    const handleDoubleClick = (index) => {
+        setSelectedMessageIndex(index);
+        setContextMenuIndex(index);
+        setContextMenuAnchor(document.getElementById(`message-item-${index}`));
+    };
+
+    const handleContextMenuOpen = (event, index) => {
+        event.preventDefault();
+        setContextMenuIndex(index);
+        setContextMenuAnchor(event.currentTarget);
+    };
+
+    const handleContextMenuClose = () => {
+        setContextMenuIndex(null);
+        setContextMenuAnchor(null);
+    };
+
+    const handleDelete = (index) => {
+        const newNotes = { ...notes };
+        if (newNotes[id]) {
+            newNotes[id] = newNotes[id].filter((_, i) => i !== index);
+            setNotes(newNotes);
+        }
+        handleContextMenuClose();
+    };
+
+    const handleDrop = (event) => {
+        event.preventDefault();
+        const files = event.dataTransfer.files;
+
+        if (files.length > 0) {
+            const fileArray = Array.from(files);
+            const imageFile = fileArray.find((file) => file.type.startsWith('image/'));
+
+            if (imageFile) {
+                setDroppedImage(imageFile);
+            }
+        }
+    };
+
+    const handleDeleteDroppedImage = () => {
+        setDroppedImage(null);
+    };
+
+    const handleDragOver = (event) => {
+        event.preventDefault();
+    };
+
     return (
-        <Container
-            component="main"
-            maxWidth="lg"
-            style={{
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-                minHeight: '100vh',
-            }}
-        >
+        <Container className="main-container" onDrop={handleDrop} onDragOver={handleDragOver}>
             <CssBaseline />
-            <div>
-                <div style={{ marginRight: '2rem' }}>
-                    <Paper
-                        elevation={3}
-                        style={{
-                            backgroundColor: '#f5f5f5',
-                            padding: '2rem',
-                            borderRadius: '5px',
-                            textAlign: 'center',
-                        }}
-                    >
-                        <Typography variant="h4" style={{ fontWeight: 'bold' }}>
+            <Grid container spacing={3} className="main-grid">
+                <Grid item xs={12} className="messenger-panel">
+                    <Paper elevation={3} className="messenger-paper">
+                        <Typography variant="h4" className="title">
                             Pokój rekrutacyjny
                         </Typography>
                         {currentTicket && (
-                            <Typography>Aktualnie obsługiwany bilet: {currentTicket.id}</Typography>
-                        )}
-                    </Paper>
-                    <Grid
-                        container
-                        spacing={2}
-                        alignItems="center"
-                        justifyContent="center"
-                        style={{ marginTop: '2rem' }}
-                    >
-                        <Grid item>
-                            <Button
-                                variant={currentTool === 'pencil' ? 'contained' : 'outlined'}
-                                onClick={() => changeTool('pencil')}
-                                startIcon={<Create />}
-                            >
-                                Rysik
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                variant={currentTool === 'eraser' ? 'contained' : 'outlined'}
-                                onClick={() => changeTool('eraser')}
-                                startIcon={<Delete />}
-                            >
-                                Gumka
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                variant="outlined"
-                                onClick={openFillDialog}
-                                startIcon={<FormatShapes />}
-                            >
-                                Wypełnij
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Typography variant="body1">
-                                Rozmiar rysika/gumki: {brushSize}
+                            <Typography className="current-ticket">
+                                Zgłoszenie: {currentTicket.id}
                             </Typography>
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Slider
-                                value={brushSize}
-                                min={1}
-                                max={20}
-                                step={1}
-                                onChange={changeBrushSize}
-                                style={{ width: '100%' }}
-                            />
-                        </Grid>
-                        <Grid item xs={6}>
-                            <Grid container spacing={1} justifyContent="center">
-                                {colorPalette.map((color) => (
-                                    <Grid item key={color}>
-                                        <Button
-                                            onClick={() => changeBrushColor(color)}
-                                            style={{
-                                                backgroundColor: color,
-                                                width: '2rem',
-                                                height: '2rem',
-                                                border: brushColor === color ? '2px solid black' : 'none',
-                                            }}
-                                        />
-                                    </Grid>
-                                ))}
-                                <Grid item>
-                                    <Button
-                                        onClick={() => changeBrushColor(fillColor)}
-                                        style={{
-                                            width: '2rem',
-                                            height: '2rem',
-                                            border: brushColor === fillColor ? '2px solid black' : 'none',
-                                        }}
-                                        startIcon={<ColorLens />}
+                        )}
+                        <List className="message-list">
+                            {notes[id]?.map((message, index) => (
+                                <ListItem
+                                    key={index}
+                                    id={`message-item-${index}`}
+                                    className={`message-item ${
+                                        selectedMessageIndex === index ? 'selected-message' : ''
+                                    }`}
+                                    onDoubleClick={() => handleDoubleClick(index)}
+                                    onContextMenu={(event) => handleContextMenuOpen(event, index)}
+                                >
+                                    <ListItemText
+                                        primary={
+                                            <div>
+                                                <div dangerouslySetInnerHTML={{ __html: message.content }} />
+                                                {message.image && (
+                                                    <img
+                                                        src={message.image}
+                                                        alt="Attached"
+                                                        className="attached-image"
+                                                    />
+                                                )}
+                                            </div>
+                                        }
+                                        secondary={message.timestamp}
+                                        className="message-text"
                                     />
-                                </Grid>
-                            </Grid>
-                        </Grid>
-                        <Grid item>
-                            <Button
-                                variant="contained"
-                                color="error"
-                                startIcon={<Delete />}
-                                onClick={clearCanvas}
-                            >
-                                Wyczyść tablicę
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button variant="contained" onClick={undo} startIcon={<Delete />}>
-                                Cofnij ostatni ruch
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button variant="contained" onClick={redo} startIcon={<Redo />}>
-                                Redo
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button variant="contained" onClick={exportDrawing} startIcon={<Save />}>
-                                Eksportuj rysunek
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button variant="outlined" onClick={openSaveDialog} startIcon={<Save />}>
-                                Zapisz rysunek
-                            </Button>
-                        </Grid>
-                        <Grid item>
-                            <Button variant="outlined" onClick={openOpenDialog} startIcon={<Save />}>
-                                Otwórz rysunek
-                            </Button>
-                        </Grid>
-                    </Grid>
-                    <canvas
-                        ref={canvasRef}
-                        width={1600}
-                        height={2000}
-                        style={{ border: '1px solid black', marginTop: '2rem' }}
-                        onMouseDown={startDrawing}
-                        onMouseUp={stopDrawing}
-                        onMouseMove={draw}
-                        onDrop={handleDrop}
-                        onDragOver={handleDragOver}
-                    />
-                </div>
-            </div>
-            <Dialog open={showFillDialog} onClose={closeFillDialog}>
-                <DialogTitle>Wypełnij</DialogTitle>
-                <DialogContent>
-                    <Typography>Wybierz kolor wypełnienia:</Typography>
-                    <Grid container spacing={1} justifyContent="center">
-                        {colorPalette.map((color) => (
-                            <Grid item key={color}>
+                                    {message.replyTo !== null && (
+                                        <Typography variant="body2" className="reply-info">
+                                            W odpowiedzi na: {notes[id][message.replyTo]?.content}
+                                        </Typography>
+                                    )}
+                                    <ListItemSecondaryAction>
+                                        <IconButton
+                                            edge="end"
+                                            aria-label="delete"
+                                            onClick={() => handleDelete(index)}
+                                        >
+                                            <DeleteOutlined />
+                                        </IconButton>
+                                    </ListItemSecondaryAction>
+                                </ListItem>
+                            ))}
+                        </List>
+                        <div className="input-container">
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                value={input}
+                                onChange={(e) => setInput(e.target.value)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter' && !e.shiftKey) {
+                                        e.preventDefault();
+                                        handleSend();
+                                    }
+                                }}
+                                placeholder="Twoja notatka..."
+                                className="input-field"
+                                multiline
+                                rowsMax={4}
+                            />
+                            <div className="send-button-container">
                                 <Button
-                                    onClick={() => setFillColor(color)}
-                                    style={{
-                                        backgroundColor: color,
-                                        width: '2rem',
-                                        height: '2rem',
-                                        border: fillColor === color ? '2px solid black' : 'none',
-                                    }}
-                                />
-                            </Grid>
-                        ))}
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={fillCanvas}>Wypełnij</Button>
-                    <Button onClick={closeFillDialog}>Anuluj</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={showSaveDialog} onClose={closeSaveDialog}>
-                <DialogTitle>Zapisz rysunek</DialogTitle>
-                <DialogContent>
-                    <TextField id="drawing-name" label="Nazwa rysunku" fullWidth />
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={saveDrawing}>Zapisz</Button>
-                    <Button onClick={closeSaveDialog}>Anuluj</Button>
-                </DialogActions>
-            </Dialog>
-            <Dialog open={showOpenDialog} onClose={closeOpenDialog}>
-                <DialogTitle>Otwórz rysunek</DialogTitle>
-                <DialogContent>
-                    {savedDrawings.map((drawing, index) => (
-                        <Button
-                            key={index}
-                            onClick={() => openDrawing(drawing.data)}
-                            style={{ marginBottom: '1rem' }}
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleSend}
+                                    className="send-button"
+                                    style={{ height: '100%', marginLeft: '8px' }}
+                                >
+                                    <ReplyOutlined />
+
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="generate-pdf-button-container">
+                            <div className="generate-pdf-button-wrapper">
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
+                                    onClick={exportToPDF}
+                                    className="generate-pdf-button"
+                                    style={{ margin: '10px auto', display: 'block' }}
+                                >
+                                    Archiwizuj notatnik (PDF)
+                                </Button>
+                            </div>
+                        </div>
+                    </Paper>
+                </Grid>
+            </Grid>
+            <div className="dropped-image-container">
+                {droppedImage && (
+                    <div className="dropped-image">
+                        <img
+                            src={URL.createObjectURL(droppedImage)}
+                            alt="Dropped"
+                            className="dropped-image"
+                        />
+                        <IconButton
+                            edge="end"
+                            aria-label="delete-dropped-image"
+                            onClick={handleDeleteDroppedImage}
+                            className="delete-dropped-image-button"
                         >
-                            {drawing.name}
-                        </Button>
-                    ))}
-                </DialogContent>
-                <DialogActions>
-                    <Button onClick={closeOpenDialog}>Anuluj</Button>
-                </DialogActions>
-            </Dialog>
+                            <DeleteOutlined />
+                        </IconButton>
+                    </div>
+                )}
+            </div>
         </Container>
     );
 };

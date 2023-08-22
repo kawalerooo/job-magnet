@@ -30,7 +30,7 @@ const App = () => {
           <ApplicationsProvider>
             <ApplicationFieldsProvider>
               <QueueProvider>
-                <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', backgroundColor: '#DFECF9' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh'}}>
                   <Header username={username} />
                   <div style={{ display: 'flex', flexGrow: 1 }}>
                     <Sidebar />

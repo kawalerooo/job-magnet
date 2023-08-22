@@ -4,8 +4,8 @@ function CVCreator() {
     const [iframeKey, setIframeKey] = useState(Date.now());
 
     useEffect(() => {
-        setIframeKey(Date.now());  // Update the key to the current timestamp
-    }, []);  // This effect runs once when the component mounts
+        setIframeKey(Date.now());
+    }, []);
 
     return (
         <div>
